@@ -4,4 +4,5 @@ project(23202_PYATANOV_OOP_CPP)
 set(CMAKE_CXX_STANDARD 14)
 
 add_executable(23202_PYATANOV_OOP_CPP
-        main.cpp)
+        task-0/main.cpp
+        task-0/out.cpp)
