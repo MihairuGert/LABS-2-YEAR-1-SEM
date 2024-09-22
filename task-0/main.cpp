@@ -4,7 +4,9 @@
 #include "FilePrinter.h"
 
 int main(int argc, char** argv) {
-	FileReader fileReader = FileReader(argv[1]);
+    if (argv[1] == nullptr || argv[2] == nullptr)
+        return 1;
+    FileReader fileReader = FileReader(argv[1]);
 	TextParser textParser;
 	textParser.parseTextInFile(fileReader);
 
