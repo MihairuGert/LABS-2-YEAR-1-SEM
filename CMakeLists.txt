@@ -5,4 +5,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_executable(23202_PYATANOV_OOP_CPP
         task-0/main.cpp
-        task-0/out.cpp)
+        task-0/FileReader.h
+        task-0/TextParser.cpp
+        task-0/StatisticsModule.h
+        task-0/FilePrinter.h
+        task-0/FileReader.cpp
+        task-0/StatisticsModule.cpp
+        task-0/FilePrinter.cpp)
