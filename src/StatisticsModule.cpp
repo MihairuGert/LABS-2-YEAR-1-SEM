@@ -1,14 +1,16 @@
 #include "StatisticsModule.h"
 
-// TODO: YOU FORGOT SORTING ALGO!
+bool StatisticsModule::compare(WordFrequency& first, WordFrequency& second) {
+    return (first.data > second.data);
+}
 
-void StatisticsModule::countWords(TextParser textParser) {
-	std::list<std::string> wordsList = textParser.getWordsList();
+void StatisticsModule::countWords(const std::list<std::string>& wordsList) {
 	wordsAmount = wordsList.size();
 	for (const std::string& i : wordsList) {
-		WordFrequency wordFrequency = WordFrequency(i, 1, (double) 1 / wordsAmount * 100);
-		findPositionInList(wordFrequency);
-	}
+        WordFrequency wordFrequency = WordFrequency(i, 1, (double) 1 / wordsAmount * 100);
+        findPositionInList(wordFrequency);
+    }
+    wordsStatistics->sort(compare);
 }
 
 void StatisticsModule::findPositionInList(WordFrequency& wordFrequency) {
@@ -30,4 +32,14 @@ StatisticsModule::StatisticsModule() {
 	auto* words = new std::list<WordFrequency>;
 	this->wordsStatistics = words;
 	wordsAmount = 0;
+}
+
+std::string StatisticsModule::getStatisticsTable() {
+    std::string table;
+    table += "Word;Frequency;Frequency(in %)\n";
+    for (auto const& i : *wordsStatistics) {
+        table += (i.word + ";" + std::to_string(i.data) + ";"
+              + std::to_string(i.percent) + "\n");
+    }
+    return table;
 }

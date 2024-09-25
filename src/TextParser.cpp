@@ -20,16 +20,6 @@ void TextParser::parseString(const std::string& line) {
     }
 }
 
-void TextParser::parseTextInFile(FileReader fileReader) {
-    while (true) {
-        std::string stringToParse = fileReader.getLine();
-        if (stringToParse.empty()) {
-            break;
-        }
-        parseString(stringToParse);
-    }
-}
-
 std::list<std::string> TextParser::getWordsList() {
     return *wordsList;
 }

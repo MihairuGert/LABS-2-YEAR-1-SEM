@@ -11,7 +11,7 @@ private:
 public:
 	void open();
 	void close();
-	void printTableData(StatisticsModule statisticsModule);
+	void printString(const std::string& string);
 	explicit FilePrinter(const std::string& filename);
 };
 

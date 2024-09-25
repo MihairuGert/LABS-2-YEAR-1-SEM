@@ -27,4 +27,3 @@ FileReader::FileReader(const std::string& filename) {
 	this->in = in;
 	FileReader::open();
 }
-

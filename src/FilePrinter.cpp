@@ -9,15 +9,8 @@ void FilePrinter::close() {
 	delete out;
 }
 
-void FilePrinter::printTableData(StatisticsModule statisticsModule) {
-	std::list<WordFrequency> wordsStatistics = statisticsModule.getWordsStatistics();
-	*out << "Слово;Частота;Частота(в %)" << '\n';
-	while (!wordsStatistics.empty()) {
-		*out << wordsStatistics.front().word << ";" << wordsStatistics.front().data << ";"
-			<< wordsStatistics.front().percent << "\n";
-		wordsStatistics.pop_front();
-	}
-	//*out << "in total: " << words_number << " words";
+void FilePrinter::printString(const std::string& string) {
+    *out << string;
 }
 
 FilePrinter::FilePrinter(const std::string& filename) {
