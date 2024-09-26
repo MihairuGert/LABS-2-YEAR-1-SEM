@@ -28,3 +28,7 @@ TextParser::TextParser() {
     auto* wordsList = new std::list<std::string>;
     this->wordsList = wordsList;
 }
+
+void TextParser::clear() {
+    wordsList->clear();
+}

@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 	parseText(fileReader, textParser);
 
 	StatisticsModule statisticsModule;
-	statisticsModule.countWords(textParser.getWordsList());
+	statisticsModule.createStatistcsList(textParser.getWordsList());
 
 	FilePrinter filePrinter = FilePrinter(argv[2]);
 	filePrinter.printString(statisticsModule.getStatisticsTable());

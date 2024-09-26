@@ -4,7 +4,8 @@ bool StatisticsModule::compare(WordFrequency& first, WordFrequency& second) {
     return (first.data > second.data);
 }
 
-void StatisticsModule::countWords(const std::list<std::string>& wordsList) {
+void StatisticsModule::createStatistcsList(const std::list<std::string>& wordsList) {
+    wordsStatistics->clear();
 	wordsAmount = wordsList.size();
 	for (const std::string& i : wordsList) {
         WordFrequency wordFrequency = WordFrequency(i, 1, (double) 1 / wordsAmount * 100);
