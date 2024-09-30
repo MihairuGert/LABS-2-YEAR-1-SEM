@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <string>
 
 class FileReader {
 private:
@@ -11,7 +12,7 @@ private:
 public:
 	void open();
 	void close();
+    bool isEOF();
 	std::string getLine();
-	void debugConsoleLogFilenameAdress();
 	explicit FileReader(const std::string& filename);
 };

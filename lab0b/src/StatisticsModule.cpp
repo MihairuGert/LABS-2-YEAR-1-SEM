@@ -25,7 +25,8 @@ void StatisticsModule::findPositionInList(WordFrequency& wordFrequency) {
 	(*wordsStatistics).push_back(wordFrequency);
 }
 
-std::list<WordFrequency> StatisticsModule::getWordsStatistics() {
+std::list<WordFrequency> StatisticsModule::getWordsStatistics(const std::list<std::string>& wordsList) {
+    createStatistcsList(wordsList);
 	return *wordsStatistics;
 }
 
@@ -33,14 +34,4 @@ StatisticsModule::StatisticsModule() {
 	auto* words = new std::list<WordFrequency>;
 	this->wordsStatistics = words;
 	wordsAmount = 0;
-}
-
-std::string StatisticsModule::getStatisticsTable() {
-    std::string table;
-    table += "Word;Frequency;Frequency(in %)\n";
-    for (auto const& i : *wordsStatistics) {
-        table += (i.word + ";" + std::to_string(i.data) + ";"
-              + std::to_string(i.percent) + "\n");
-    }
-    return table;
 }

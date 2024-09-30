@@ -2,6 +2,7 @@
 #include "TextParser.h"
 #include "StatisticsModule.h"
 #include "FilePrinter.h"
+#include <sstream>
 
 void parseText(FileReader fileReader, TextParser textParser) {
     while (true) {
@@ -21,11 +22,14 @@ int main(int argc, char** argv) {
 	parseText(fileReader, textParser);
 
 	StatisticsModule statisticsModule;
-	statisticsModule.createStatistcsList(textParser.getWordsList());
 
 	FilePrinter filePrinter = FilePrinter(argv[2]);
-	filePrinter.printString(statisticsModule.getStatisticsTable());
-
+    filePrinter.printString("Word;Frequency;Frequency(in %)\n");
+    for (const auto& i : statisticsModule.getWordsStatistics(textParser.getWordsList())) {
+        std::stringstream ss;
+        ss << i.word << ';' << i.data << ';' << i.percent << '\n';
+        filePrinter.printString(ss.str());
+    }
 	fileReader.close();
 	filePrinter.close();
 	return 0;

@@ -17,11 +17,10 @@ private:
 	std::list<WordFrequency>* wordsStatistics;
 	int wordsAmount;
     static bool compare(WordFrequency& first, WordFrequency& second);
+    void createStatistcsList(const std::list<std::string>& wordsList);
+    void findPositionInList(WordFrequency& wordFrequency);
 public:
-	void createStatistcsList(const std::list<std::string>& wordsList);
-	void findPositionInList(WordFrequency& wordFrequency);
-	std::list<WordFrequency> getWordsStatistics();
-    std::string getStatisticsTable();
+    std::list<WordFrequency> getWordsStatistics(const std::list<std::string>& wordsList);
 	StatisticsModule();
 };
 
