@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-const unsigned int FIRST_BYTE = 2147483648;
-const unsigned int TRUE_BLOCK = 4294967295;
+const unsigned int FIRST_BYTE = 0x80000000;
+const unsigned int TRUE_BLOCK = 0xffffffff;
 const unsigned int FALSE_BLOCK = 0;
 const int bitsCount = sizeof(int)*8;
 
