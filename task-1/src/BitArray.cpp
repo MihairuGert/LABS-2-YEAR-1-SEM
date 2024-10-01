@@ -83,7 +83,7 @@ void BitArray::resize(int numBits, bool value) {
             blocksToDelete = blocksToDelete->next;
         }
         endPtr = prev;
-        endPtr->next = NULL;
+        endPtr->next = nullptr;
         do {
             Block* blockToDelete = blocksToDelete;
             blocksToDelete = blocksToDelete->next;

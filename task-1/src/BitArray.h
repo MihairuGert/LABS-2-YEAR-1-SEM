@@ -56,7 +56,7 @@ public:
     // Constructs new bit array based on b bit array. New memory is allocated.
     BitArray(const BitArray& b);
 
-    // Swaps values between two bit arrays.
+    // Swaps values between two bit arrays. If the sizes are not equal, swaps only the lesser part.
     void swap(BitArray& b);
 
     // Assigns one bit array to another.
