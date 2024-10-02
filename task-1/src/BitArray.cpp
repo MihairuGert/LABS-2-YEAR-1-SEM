@@ -21,7 +21,7 @@ Block::operator bool() const {
 }
 
 BitArray::BitArray() {
-    basePtr = endPtr = NULL;
+    basePtr = endPtr = nullptr;
     numBits = 0;
 }
 
@@ -31,7 +31,7 @@ BitArray::~BitArray() {
 
 BitArray::BitArray(int numBits, unsigned long value) {
     this->numBits = -1;
-    basePtr = endPtr = NULL;
+    basePtr = endPtr = nullptr;
     resize(numBits, value);
 }
 
@@ -94,7 +94,7 @@ void BitArray::resize(int numBits, bool value) {
     }
     // Check for value input.
     unsigned int byteValue;
-    if (value == false)
+    if (!value)
         byteValue = FALSE_BLOCK;
     else
         byteValue = TRUE_BLOCK;
@@ -106,7 +106,7 @@ void BitArray::resize(int numBits, bool value) {
         i++;
     }
     for (; i < alignBits(numBits) / bitsCount - alignBits(this->numBits) / bitsCount; i++) {
-        Block* block = new Block(byteValue);
+        auto* block = new Block(byteValue);
         endPtr->next = block;
         endPtr = block;
     }
@@ -125,7 +125,6 @@ void BitArray::push_back(bool bit) {
 
 BitArray& BitArray::operator&=(const BitArray& b) {
     if (size() != b.size() || b.empty() || empty()) {
-        //std::cout << "&= function: Wrong input!" << '\n';
         return *this;
     }
     for (int i = 0; i < b.size(); i++) {
@@ -136,7 +135,6 @@ BitArray& BitArray::operator&=(const BitArray& b) {
 
 BitArray& BitArray::operator|=(const BitArray& b) {
     if (size() != b.size() || b.empty() || empty()) {
-        //std::cout << |= function: Wrong input!" << '\n';
         return *this;
     }
     for (int i = 0; i < b.size(); i++) {
@@ -147,7 +145,6 @@ BitArray& BitArray::operator|=(const BitArray& b) {
 
 BitArray& BitArray::operator^=(const BitArray& b) {
     if (size() != b.size() || b.empty() || empty()) {
-        //std::cout << "^= function: Wrong input!" << '\n';
         return *this;
     }
     for (int i = 0; i < b.size(); i++) {
@@ -166,7 +163,7 @@ BitArray& BitArray::operator<<=(int n) {
     n %= numBits;
     for (int i = n; i < numBits; i++) {
         set(i - n, (*this)[i]);
-        set(i, 0);
+        set(i, false);
     }
     return *this;
 }
@@ -181,7 +178,7 @@ BitArray& BitArray::operator>>=(int n) {
     n %= numBits;
     for (int i = numBits - n; i > 0; i--) {
         set(i + n, (*this)[i]);
-        set(i, 0);
+        set(i, false);
     }
     return *this;
 }
@@ -200,11 +197,10 @@ BitArray BitArray::operator>>(int n) const {
 
 BitArray& BitArray::set(int n, bool val) {
     if (n < 0 || n >= numBits) {
-        //std::cout << "Set function: Wrong value input!\n";
         return *this;
     }
     int positionInBitArray = n / bitsCount;
-    if (val == true) {
+    if (val) {
         (*getBlock(positionInBitArray)).value = (*getBlock(positionInBitArray)).value | getTrueMask(n % bitsCount);
     }
     else {
@@ -277,7 +273,6 @@ int BitArray::count() const {
 
 Block& BitArray::operator[](int i) const {
     if (i < 0 || i >= numBits) {
-        //std::cout << "[]: Wrong value input!\n";
         return *getBlock(0);
     }
     Block* block = getBlock(i / bitsCount);
@@ -296,13 +291,13 @@ bool BitArray::empty() const {
 std::string BitArray::to_string() const {
     std::string res;
     for (int i = 0; i < numBits; i++) {
-        int ind = (*this)[i] == true ? 1 : 0;
+        int ind = (*this)[i] ? 1 : 0;
         res.push_back(ind + '0');
     }
     return res;
 }
 
-int BitArray::alignBits(int numBits) const{
+int BitArray::alignBits(int numBits) {
     if (numBits <= 0) {
         return 0;
     }
@@ -312,7 +307,7 @@ int BitArray::alignBits(int numBits) const{
     return numBits;
 }
 
-unsigned int BitArray::getTrueMask(int position) const {
+unsigned int BitArray::getTrueMask(int position) {
     unsigned int mask = FIRST_BYTE;
     return mask >> position;
 }
@@ -340,17 +335,6 @@ unsigned int BitArray::logPow(int num, int pow) const {
         return logPow(num * num, pow / 2);
     }
     return logPow(num, pow - 1) * num;
-}
-
-void BitArray::consoleLogBitArrayDebug() {
-    Block* start = basePtr;
-    std::cout << "Array size is [bits] " << numBits << '\n';
-    std::cout << +start->value << ' ';
-    while (start->next) {
-        start = start->next;
-        std::cout << +start->value << ' ';
-    }
-    std::cout << '\n';
 }
 
 bool operator==(const BitArray& a, const BitArray& b) {

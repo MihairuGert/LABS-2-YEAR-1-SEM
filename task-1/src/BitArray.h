@@ -12,7 +12,7 @@ public:
     Block* next;
     unsigned int value;
     unsigned int lastIndex;
-    Block(unsigned int data);
+    explicit Block(unsigned int data);
     Block& operator=(bool value);
     operator bool() const;
 };
@@ -30,10 +30,10 @@ private:
     int numBits{};
 
     // Alignment of the number of bits to a number divisible by 8.
-    int alignBits(int numBits) const;
+    static int alignBits(int numBits) ;
 
     // Gets bit mask: true bit set in position in zero unsigned int.
-    unsigned int getTrueMask(int position) const;
+    static unsigned int getTrueMask(int position) ;
 
     // Gets bit mask: zero bit set in position in true unsigned int.
     unsigned int getFalseMask(int position) const;
@@ -63,7 +63,7 @@ public:
     BitArray& operator=(const BitArray& b);
 
     // Changes the size of the array. In case of expansion, new elements
-    // are initialized with the value value.
+    // are initialized with the value = value.
     void resize(int numBits, bool value = false);
 
     // Clears array.
@@ -119,9 +119,6 @@ public:
 
     // Returns string made of bits.
     std::string to_string() const;
-
-    // Debug purpose only. Prints bit array size and stored data.
-    void consoleLogBitArrayDebug();
 };
 
 bool operator==(const BitArray& a, const BitArray& b);
