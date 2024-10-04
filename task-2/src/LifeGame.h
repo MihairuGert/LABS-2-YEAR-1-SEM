@@ -5,8 +5,8 @@
 
 class LifeGame {
 private:
-    int birthRule[8] = {0};
-    int survivalRule[8] = {0};
+    std::vector<int> birthCondition;
+    std::vector<int> survivalCondition;
     int row;
     int column;
     Grid grid1;

@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO: DO WE NEED IT AT ALL?
 class Cell {
 private:
     int x;

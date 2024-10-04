@@ -9,13 +9,13 @@ private:
     int row;
 public:
     Grid(int column, int row);
-    Grid();
+    Grid(); // FIXME: PROBABLY IT CAN BE LEFT
     bool getElement(int columnInd, int rowInd);
     void setElement(int columnInd, int rowInd, bool value);
     int getRow() const;
     int getColumn() const;
-    void copy(Grid& grid);
+    void copy(Grid& grid); // TODO: COPY CONSTRUCTOR?
     void clear();
     void createGrid();
-    void printGrid();
+    void printGrid(); // TODO: MOVE IT TO INTERFACE CLASS
 };

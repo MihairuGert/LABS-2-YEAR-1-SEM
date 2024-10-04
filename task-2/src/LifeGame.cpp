@@ -6,8 +6,7 @@ void LifeGame::startGame() {
     grid1.setElement(2,2, true);
     grid1.setElement(2,1, true);
     grid1.setElement(1,0, true);
-    GameEngine gameEngine;
-    gameEngine.countAliveCells(grid1);
+    GameEngine gameEngine = GameEngine({3},{2,3}); // make custom
     grid1.printGrid();
     std::cout << '\n';
     using namespace std::this_thread; // sleep_for, sleep_until
@@ -16,18 +15,14 @@ void LifeGame::startGame() {
         gameEngine.computeNext(grid1, grid2);
         grid2.printGrid();
         std::cout << '\n';
-        //sleep_for(milliseconds (500));// TODO: OPTIMIZATION DISASTER :(
-        grid1.copy(grid2);
+        sleep_for(milliseconds (500));//
+        grid1 = grid2;
     }
 }
 
 LifeGame::LifeGame(int column, int row) {
     this->row = row;
     this->column = column;
-    // Default game rules. TODO: custom player rules.
-    birthRule[2] = 1;
-    survivalRule[2] = 1;
-    survivalRule[1] = 1;
     grid1 = Grid(10,10);
     grid2 = Grid(10,10);
 }
