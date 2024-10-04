@@ -14,7 +14,6 @@ public:
     void setElement(int columnInd, int rowInd, bool value);
     int getRow() const;
     int getColumn() const;
-    void copy(Grid& grid); // TODO: COPY CONSTRUCTOR?
     void clear();
     void createGrid();
     void printGrid(); // TODO: MOVE IT TO INTERFACE CLASS

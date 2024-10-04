@@ -1,7 +1,11 @@
 #pragma once
-#include "GameEngine.h"
 #include <chrono>
 #include <thread>
+#include "GameEngine.h"
+#include "FileReader.h"
+#include "InputInterpreter.h"
+
+const int DEFAULT_SIZE = 25;
 
 class LifeGame {
 private:
@@ -12,6 +16,6 @@ private:
     Grid grid1;
     Grid grid2;
 public:
-    void startGame();
-    LifeGame(int column, int row);
+    void startGame(char** argv);
+    bool parseLifeFile(char** argv);
 };

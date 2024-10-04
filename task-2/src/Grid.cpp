@@ -9,8 +9,8 @@ void Grid::setElement(int columnInd, int rowInd, bool value) {
 }
 
 void Grid::clear() {
-    for (int i = 0; i < column; ++i) {
-        for (int j = 0; j < row; ++j) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < column; ++j) {
             grid[i][j] = false;
         }
     }
@@ -25,10 +25,10 @@ void Grid::createGrid() {
 }
 
 void Grid::printGrid() {
-    for (int i = 0; i < column; ++i) {
-        for (int j = 0; j < row; ++j) {
+    for (int i = 0; i < row; ++i) {
+        for (int j = 0; j < column; ++j) {
             if (grid[i][j])
-                std::cout << "*" << ' ';
+                std::cout << "#" << ' ';
             else {
                 std::cout << " " << ' ';
             }
@@ -51,12 +51,4 @@ int Grid::getColumn() const {
 
 int Grid::getRow() const {
     return row;
-}
-
-void Grid::copy(Grid &grid) {
-    for (int i = 0; i < column; ++i) {
-        for (int j = 0; j < row; ++j) {
-            (*this).setElement(i,j, grid.getElement(i, j));
-        }
-    }
 }

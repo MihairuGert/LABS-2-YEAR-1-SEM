@@ -1,14 +1,16 @@
-//
-// Created by Pyata on 03.10.2024.
-//
+#pragma once
 
-#ifndef INC_23202_PYATANOV_FILEREADER_H
-#define INC_23202_PYATANOV_FILEREADER_H
-
+#include <fstream>
+#include <string>
 
 class FileReader {
-
+private:
+    std::string filename;
+    std::ifstream* in;
+public:
+    void open();
+    void close();
+    bool isEOF();
+    std::string getLine();
+    explicit FileReader(const std::string& filename);
 };
-
-
-#endif //INC_23202_PYATANOV_FILEREADER_H
