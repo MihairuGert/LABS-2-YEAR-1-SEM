@@ -3,7 +3,7 @@
 
 class GameEngine {
 private:
-    int countNeighbors(Grid& grid, int x, int y);
+    static int countNeighbors(Grid& grid, int x, int y);
     std::vector<int> birthCondition;
     std::vector<int> survivalCondition;
     bool isSurvived(int num);

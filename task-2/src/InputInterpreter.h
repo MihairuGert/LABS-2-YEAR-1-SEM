@@ -4,10 +4,10 @@
 
 class InputInterpreter {
 public:
-    bool checkFormat(const std::string& string);
-    std::string getName(std::string string);
-    std::vector<std::vector<int>> getConditions(std::string string);
-    std::vector<int> getSize(std::string string);
-    std::vector<int> getCell(std::string string);
+    static bool checkFormat(const std::string& string);
+    static std::string getName(const std::string& string);
+    static std::vector<std::vector<int>> getConditions(const std::string& string, bool* parseLifeFileStatus);
+    static std::vector<int> getSize(const std::string& string, bool* parseLifeFileStatus);
+    static std::vector<int> getCell(const std::string& string);
 };
 

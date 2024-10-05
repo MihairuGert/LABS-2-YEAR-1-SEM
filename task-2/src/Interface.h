@@ -16,10 +16,10 @@ public:
 
 class Interface {
 private:
-    void printGrid(const Grid& grid);
+    static void printGrid(const Grid& grid);
 public:
-    void printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
-                        const std::string& universeName, int iterationNum);
-    Cmd getCommand();
-    void printHelp();
+    static void printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
+                        const std::string& universeName, int iterationNum, const bool* parseLifeFIleStatus);
+    static Cmd getCommand();
+    static void printHelp();
 };

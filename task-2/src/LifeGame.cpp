@@ -2,85 +2,128 @@
 
 void LifeGame::startGame(char** argv) {
     // Reading name, rules, starting cells from file.
-    // TODO: ADD CHECKING FOR NULLPTR
-    parseLifeFile(argv);
+    // TODO: CHECK FOR NULLPTR AND NO_FORMAT. GENERATE UNIVERSE IF NEEDED.
+    bool parseLifeFileStatus[6] = {0};
+    if (parseLifeFile(argv, parseLifeFileStatus) == ParseFileStatus::NO_FORMAT) {
+        std::cout << "ERROR: WRONG FILE FORMAT.\nPress any button to continue...";
+        std::getchar();
+        return;
+    }
     // Start game with given rules.
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
-    Interface interface;
     GameStatus gameStatus = GameStatus::CONTINUE;
     while (gameStatus == GameStatus::CONTINUE) {
-        interface.printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum);
-        Cmd cmd = interface.getCommand();
-        gameStatus = processCmd(cmd, gameEngine);
+        Interface::printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
+        Cmd cmd = Interface::getCommand();
+        gameStatus = processCmd(cmd, gameEngine, parseLifeFileStatus);
     }
 }
 
-bool LifeGame::parseLifeFile(char** argv) {
+ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) {
     FileReader fileReader = FileReader(argv[1]);
-    InputInterpreter inputInterpreter;
-    // If incorrect format, returns false.
-    if (!inputInterpreter.checkFormat(fileReader.getLine())) {
-        return false;
+    // If incorrect format, returns the error.
+    if (!InputInterpreter::checkFormat(fileReader.getLine())) {
+        return ParseFileStatus::NO_FORMAT;
     }
-    // Getting universe name. //TODO: CHECK IF NAME IS EMPTY
-    universeName = inputInterpreter.getName(fileReader.getLine());
-    // Getting birth and survival conditions. //TODO: CHECK IF CONDITIONS ARE EMPTY
-    std::vector<std::vector<int>> rules = inputInterpreter.getConditions(fileReader.getLine());
+    // Flag not to miss a string if any is absent.
+    bool isSuccessGetLine = true;
+    // Getting universe name.
+    std::string fileLine = fileReader.getLine();
+    universeName = InputInterpreter::getName(fileLine);
+    if (universeName.empty()) {
+        parseLifeFileStatus[1] = true;
+        universeName = "NO_NAME";
+        isSuccessGetLine = false;
+    }
+    // Getting birth and survival conditions.
+    if (isSuccessGetLine) {
+        fileLine = fileReader.getLine();
+    }
+    std::vector<std::vector<int>> rules = InputInterpreter::getConditions(fileLine, parseLifeFileStatus);
+    if (parseLifeFileStatus[2]) {
+        isSuccessGetLine = false;
+    } else {
+        isSuccessGetLine = true;
+    }
     birthCondition = rules[0];
     survivalCondition = rules[1];
     // Getting the grid size.
-    std::vector<int> size = inputInterpreter.getSize(fileReader.getLine());
+    if (isSuccessGetLine) {
+        fileLine = fileReader.getLine();
+    }
+    std::vector<int> size = InputInterpreter::getSize(fileLine, parseLifeFileStatus);
+    if (parseLifeFileStatus[3]) {
+        isSuccessGetLine = false;
+    } else {
+        isSuccessGetLine = true;
+    }
     column = size[0];
     row = size[1];
     grid1 = Grid(size[0], size[1]);
     grid2 = Grid(size[0], size[1]);
     // Getting alive cells.
-    std::string line;
     while (true) {
-        line = fileReader.getLine();
-        if (line.empty()) {
+        if (isSuccessGetLine) {
+            fileLine = fileReader.getLine();
+        }
+        if (fileLine.empty()) {
             break;
         }
-        std::vector<int> cells = inputInterpreter.getCell(line);
+        std::vector<int> cells = InputInterpreter::getCell(fileLine);
+        if (cells[0] < 0 || cells[1] < 0) {
+            parseLifeFileStatus[4] = true;
+            if (cells[0] < 0) {
+                while(cells[0] < 0) {
+                    cells[0] += column;
+                }
+            }
+            if (cells[1] < 0) {
+                while(cells[1] < 0) {
+                    cells[1] += row;
+                }
+            }
+        }
         grid1.setElement(cells[0], cells[1], true);
+        isSuccessGetLine = true;
     }
-    return true;
+    return ParseFileStatus::SUCCESS;
 }
 
-GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine) {
+GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus) {
     std::string name = cmd.getName();
     std::string attributes = cmd.getAttributes();
     if (cmd.getName() == "exit") {
         return GameStatus::EXIT;
     }
     if (cmd.getName() == "tick" || cmd.getName() == "t") {
-        // TODO: HANDLE NO ATTRIBUTES OR WRONG ATTRIBUTES.
-        int attributesInt = std::stoi(attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1));
+        attributes = attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1);
+        if (attributes[0] > '9' || attributes[0] < '0') {
+            callHelp();
+            return GameStatus::CONTINUE;
+        }
+        int attributesInt = std::stoi(attributes);
         iterationNum += attributesInt;
         gameEngine.computeIterations(grid1,grid2,attributesInt);
     }
     else if (cmd.getName() == "auto") {
-        int attributesInt = std::stoi(attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1));
-        Interface interface;
+        attributes = attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1);
+        if (attributes[0] > '9' || attributes[0] < '0') {
+            callHelp();
+            return GameStatus::CONTINUE;
+        }
+        int attributesInt = std::stoi(attributes);
         for (int i = 0; i < attributesInt; ++i) {
             ++iterationNum;
             gameEngine.computeIterations(grid1,grid2);
-            interface.printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum);
+            Interface::printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
         }
-    }
-    else if (cmd.getName() == "help") {
-        Interface interface;
-        interface.printHelp();
-        std::getchar();
     }
     else if (cmd.getName() == "dump") {
         std::string filename = attributes.substr(attributes.find('<') +1, attributes.find('>') - attributes.find('<') - 1) + ".life";
         createLifeFile(filename);
     }
     else {
-        Interface interface;
-        interface.printHelp();
-        std::getchar();
+        callHelp();
     }
     return GameStatus::CONTINUE;
 }
@@ -121,4 +164,9 @@ void LifeGame::createLifeFile(const std::string& filename) {
         }
     }
     filePrinter.close();
+}
+
+void LifeGame::callHelp() {
+    Interface::printHelp();
+    std::getchar();
 }

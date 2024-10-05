@@ -1,8 +1,20 @@
 #include "Interface.h"
 
 void Interface::printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
-                               const std::string& universeName, int iterationNum) {
+                               const std::string& universeName, int iterationNum, const bool* parseLifeFileStatus) {
     system("cls");
+    if (parseLifeFileStatus[1]) {
+        std::cout << "ERROR: NO NAME" << '\n';
+    }
+    if (parseLifeFileStatus[2]) {
+        std::cout << "ERROR: NO CONDITIONS" << '\n';
+    }
+    if (parseLifeFileStatus[3]) {
+        std::cout << "ERROR: NO SIZE" << '\n';
+    }
+    if (parseLifeFileStatus[4]) {
+        std::cout << "ERROR: NEGATIVE CELLS" << '\n';
+    }
     std::cout << "Universe name: " << universeName << "\nB";
     for (const int i : birthCondition) {
         std::cout << i;

@@ -9,7 +9,7 @@ private:
     int row;
 public:
     Grid(int column, int row);
-    Grid(); // FIXME: PROBABLY IT CAN BE LEFT
+    Grid();
     bool getElement(int columnInd, int rowInd) const;
     void setElement(int columnInd, int rowInd, bool value);
     int getRow() const;
