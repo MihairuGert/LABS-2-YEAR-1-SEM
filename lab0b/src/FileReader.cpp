@@ -23,5 +23,5 @@ FileReader::FileReader(const std::string& filename) {
 }
 
 bool FileReader::isEOF() {
-    return !getLine().empty();
+    return !in->peek();
 }

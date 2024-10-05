@@ -5,11 +5,8 @@
 #include <sstream>
 
 void parseText(FileReader fileReader, TextParser textParser) {
-    while (true) {
+    while (!fileReader.isEOF()) {
         std::string stringToParse = fileReader.getLine();
-        if (stringToParse.empty()) {
-            break;
-        }
         textParser.parseString(stringToParse);
     }
 }
