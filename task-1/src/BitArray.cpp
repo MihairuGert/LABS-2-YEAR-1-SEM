@@ -8,20 +8,21 @@ Block::Block(unsigned int value) {
 
 Block& Block::operator=(bool value) {
     if (value) {
-        this->value |= (1 << (bitsCount - lastIndex % bitsCount - 1));
+        this->value |= (1 << (BITS_COUNT - lastIndex % BITS_COUNT - 1));
     }
     else {
-        this->value &= ~(1 << (bitsCount - lastIndex % bitsCount - 1));
+        this->value &= ~(1 << (BITS_COUNT - lastIndex % BITS_COUNT - 1));
     }
     return *this;
 }
 
 Block::operator bool() const {
-    return (this->value & (1 << (bitsCount - lastIndex % bitsCount - 1))) != 0;
+    return (this->value & (1 << (BITS_COUNT - lastIndex % BITS_COUNT - 1))) != 0;
 }
 
 BitArray::BitArray() {
-    basePtr = endPtr = nullptr;
+    basePtr = nullptr;
+    endPtr = nullptr;
     numBits = 0;
 }
 
@@ -31,7 +32,8 @@ BitArray::~BitArray() {
 
 BitArray::BitArray(int numBits, unsigned long value) {
     this->numBits = -1;
-    basePtr = endPtr = nullptr;
+    basePtr = nullptr;
+    endPtr = nullptr;
     resize(numBits, value);
 }
 
@@ -70,7 +72,7 @@ void BitArray::resize(int numBits, bool value) {
         return;
     // Check if we should not change bit array memory blocks.
     int numBytesDifference = numBits - this->numBits;
-    if (numBytesDifference > -bitsCount && numBytesDifference < bitsCount && this->numBits > 0) {
+    if (numBytesDifference > -BITS_COUNT && numBytesDifference < BITS_COUNT && this->numBits > 0) {
         this->numBits = numBits;
         return;
     }
@@ -78,7 +80,7 @@ void BitArray::resize(int numBits, bool value) {
     if (numBits < this->numBits) {
         Block* blocksToDelete = basePtr;
         Block* prev = blocksToDelete;
-        for (int i = 0; i < alignBits(numBits) / bitsCount; i++) {
+        for (int i = 0; i < alignBits(numBits) / BITS_COUNT; i++) {
             prev = blocksToDelete;
             blocksToDelete = blocksToDelete->next;
         }
@@ -105,7 +107,7 @@ void BitArray::resize(int numBits, bool value) {
         endPtr = basePtr;
         i++;
     }
-    for (; i < alignBits(numBits) / bitsCount - alignBits(this->numBits) / bitsCount; i++) {
+    for (; i < alignBits(numBits) / BITS_COUNT - alignBits(this->numBits) / BITS_COUNT; i++) {
         auto* block = new Block(byteValue);
         endPtr->next = block;
         endPtr = block;
@@ -199,12 +201,12 @@ BitArray& BitArray::set(int n, bool val) {
     if (n < 0 || n >= numBits) {
         return *this;
     }
-    int positionInBitArray = n / bitsCount;
+    int positionInBitArray = n / BITS_COUNT;
     if (val) {
-        (*getBlock(positionInBitArray)).value = (*getBlock(positionInBitArray)).value | getTrueMask(n % bitsCount);
+        (*getBlock(positionInBitArray)).value = (*getBlock(positionInBitArray)).value | getTrueMask(n % BITS_COUNT);
     }
     else {
-        (*getBlock(positionInBitArray)).value = (*getBlock(positionInBitArray)).value & getFalseMask(n % bitsCount);
+        (*getBlock(positionInBitArray)).value = (*getBlock(positionInBitArray)).value & getFalseMask(n % BITS_COUNT);
     }
     getBlock(positionInBitArray)->lastIndex = n % 8;
     return *this;
@@ -275,7 +277,7 @@ Block& BitArray::operator[](int i) const {
     if (i < 0 || i >= numBits) {
         return *getBlock(0);
     }
-    Block* block = getBlock(i / bitsCount);
+    Block* block = getBlock(i / BITS_COUNT);
     block->lastIndex = i;
     return *block;
 }
@@ -301,8 +303,8 @@ int BitArray::alignBits(int numBits) {
     if (numBits <= 0) {
         return 0;
     }
-    if (numBits % bitsCount != 0) {
-        numBits += (bitsCount - numBits % bitsCount);
+    if (numBits % BITS_COUNT != 0) {
+        numBits += (BITS_COUNT - numBits % BITS_COUNT);
     }
     return numBits;
 }
@@ -313,7 +315,7 @@ unsigned int BitArray::getTrueMask(int position) {
 }
 
 unsigned int BitArray::getFalseMask(int position) const {
-    return TRUE_BLOCK - logPow(2, bitsCount - 1 - position);
+    return TRUE_BLOCK - logPow(2, BITS_COUNT - 1 - position);
 }
 
 Block* BitArray::getBlock(int position) const{

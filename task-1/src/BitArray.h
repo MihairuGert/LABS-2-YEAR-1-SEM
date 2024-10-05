@@ -5,7 +5,7 @@
 const unsigned int FIRST_BYTE = 0x80000000;
 const unsigned int TRUE_BLOCK = 0xffffffff;
 const unsigned int FALSE_BLOCK = 0;
-const int bitsCount = sizeof(int)*8;
+const int BITS_COUNT = sizeof(int) * 8;
 
 class Block {
 public:
