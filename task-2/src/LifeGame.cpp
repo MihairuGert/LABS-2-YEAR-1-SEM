@@ -54,7 +54,7 @@ GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine) {
         return GameStatus::EXIT;
     }
     if (cmd.getName() == "tick" || cmd.getName() == "t") {
-        int attributesInt = std::stoi(attributes.substr(attributes.find('=') + 1, attributes.find('>')));
+        int attributesInt = std::stoi(attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1));
         gameEngine.computeIterations(grid1,grid2,attributesInt);
     }
     return GameStatus::CONTINUE;

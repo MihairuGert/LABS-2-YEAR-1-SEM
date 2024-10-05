@@ -47,7 +47,7 @@ Cmd::Cmd(const std::string& cmd) {
         attributesString = "";
         return;
     }
-    attributesString = cmd.substr(start, end);
+    attributesString = cmd.substr(start, end - start);
 }
 
 std::string Cmd::getName() {
