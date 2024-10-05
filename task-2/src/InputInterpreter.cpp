@@ -31,36 +31,28 @@ std::string InputInterpreter::getName(std::string string) {\
 std::vector<std::vector<int>> InputInterpreter::getConditions(std::string string) {
     std::vector<std::vector<int>> rules;
     rules.resize(2);
-    char prev2 = 0;
-    char prev1 = 0;
     bool hasRulesStarted = false;
     bool hasBirthStarted = false;
     bool hasSurviveStarted = false;
     for (const auto& ch : string) {
-        if (ch == 'R' && prev1 == '#') {
+        if (ch == 'R' && !hasRulesStarted) {
             hasRulesStarted = true;
-            prev2 = prev1;
-            prev1 = ch;
-            continue;
         }
-        if (hasRulesStarted && prev2 != '#' && prev1 != 'R' && ch != ' ' && ch != '/') {
-            if (hasBirthStarted) {
-                rules[0].push_back(ch - '0');
-            }
-            else if (hasSurviveStarted) {
-                rules[1].push_back(ch - '0');
-            }
-            else if (ch == 'B') {
-                hasBirthStarted = true;
-            }
-            else if (ch == 'S') {
-                hasSurviveStarted = true;
-            }
-        } else if (ch == '/') {
+        if (ch == 'B') {
+            hasBirthStarted = true;
+        }
+        if (ch == '/') {
             hasBirthStarted = false;
         }
-        prev2 = prev1;
-        prev1 = ch;
+        if (ch == 'R') {
+            hasSurviveStarted = true;
+        }
+        if (hasRulesStarted && hasBirthStarted && !(ch > '9' || ch < '0')) {
+            rules[0].push_back(ch - '0');
+        }
+        if (hasRulesStarted && hasSurviveStarted && !(ch > '9' || ch < '0')) {
+            rules[1].push_back(ch - '0');
+        }
     }
     return rules;
 }
