@@ -21,4 +21,5 @@ public:
     void printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
                         const std::string& universeName, int iterationNum);
     Cmd getCommand();
+    void printHelp();
 };

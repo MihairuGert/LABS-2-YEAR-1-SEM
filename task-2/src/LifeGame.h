@@ -3,6 +3,7 @@
 #include <thread>
 #include "GameEngine.h"
 #include "FileReader.h"
+#include "FilePrinter.h"
 #include "InputInterpreter.h"
 #include "Interface.h"
 
@@ -18,9 +19,11 @@ private:
     int column;
     Grid grid1;
     Grid grid2;
-    std::string universeName;
+    std::string universeName{};
+    int iterationNum{};
 public:
     void startGame(char** argv);
     bool parseLifeFile(char** argv);
+    void createLifeFile(const std::string& filename);
     GameStatus processCmd(Cmd cmd, GameEngine gameEngine);
 };

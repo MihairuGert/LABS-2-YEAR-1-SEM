@@ -1,14 +1,18 @@
-//
-// Created by Pyata on 03.10.2024.
-//
+#pragma once
 
-#ifndef INC_23202_PYATANOV_FILEPRINTER_H
-#define INC_23202_PYATANOV_FILEPRINTER_H
+#include <fstream>
+#include <string>
+#include <iostream>
 
-
-class FilePrinter {
-
+class FilePrinter
+{
+private:
+    std::string filename;
+    std::ofstream* out;
+public:
+    void open();
+    void close();
+    void printString(const std::string& string);
+    void printInt(int n);
+    explicit FilePrinter(const std::string& filename);
 };
-
-
-#endif //INC_23202_PYATANOV_FILEPRINTER_H

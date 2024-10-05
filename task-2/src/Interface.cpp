@@ -3,6 +3,15 @@
 void Interface::printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
                                const std::string& universeName, int iterationNum) {
     system("cls");
+    std::cout << "Universe name: " << universeName << "\nB";
+    for (const int i : birthCondition) {
+        std::cout << i;
+    }
+    std::cout << " S";
+    for (const int i : survivalCondition) {
+        std::cout << i;
+    }
+    std::cout << "\nIteration: " << iterationNum << '\n';
     printGrid(grid);
 }
 
@@ -34,6 +43,15 @@ Cmd Interface::getCommand() {
     std::getline(std::cin, cmdLine);
     Cmd cmd = Cmd(cmdLine);
     return cmd;
+}
+
+void Interface::printHelp() {
+    std::cout << "\n\ttick[t] <n=int>\tComputes n ticks and shows the final grid in the console.\n"
+                 "\tauto <n=int>\tComputes n ticks and shows the grid step by step in the console.\n"
+                 "\tdump <filename>\tSaves the universe in the file.\n"
+                 "\texit\t\tExits the game.\n"
+                 "Press any button to continue...";
+
 }
 
 Cmd::Cmd(const std::string& cmd) {
