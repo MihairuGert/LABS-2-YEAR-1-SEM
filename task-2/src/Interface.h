@@ -1,14 +1,24 @@
-//
-// Created by Pyata on 03.10.2024.
-//
+#pragma once
+#include <iostream>
+#include <string>
+#include <vector>
+#include "Grid.h"
 
-#ifndef INC_23202_PYATANOV_INTERFACE_H
-#define INC_23202_PYATANOV_INTERFACE_H
-
-
-class Interface {
-
+class Cmd {
+private:
+    std::string name;
+    std::string attributesString;
+public:
+    explicit Cmd(const std::string& cmd);
+    std::string getName();
+    std::string getAttributes();
 };
 
-
-#endif //INC_23202_PYATANOV_INTERFACE_H
+class Interface {
+private:
+    void printGrid(const Grid& grid);
+public:
+    void printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
+                        const std::string& universeName, int iterationNum);
+    Cmd getCommand();
+};

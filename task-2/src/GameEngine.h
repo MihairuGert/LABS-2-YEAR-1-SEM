@@ -11,4 +11,5 @@ private:
 public:
     GameEngine(const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition);
     void computeNext(Grid& grid1, Grid& grid2);
+    void computeIterations(Grid& grid1, Grid& grid2, int iterations = 1);
 };

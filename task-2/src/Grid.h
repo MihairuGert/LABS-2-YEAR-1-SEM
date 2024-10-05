@@ -10,11 +10,10 @@ private:
 public:
     Grid(int column, int row);
     Grid(); // FIXME: PROBABLY IT CAN BE LEFT
-    bool getElement(int columnInd, int rowInd);
+    bool getElement(int columnInd, int rowInd) const;
     void setElement(int columnInd, int rowInd, bool value);
     int getRow() const;
     int getColumn() const;
     void clear();
     void createGrid();
-    void printGrid(); // TODO: MOVE IT TO INTERFACE CLASS
 };

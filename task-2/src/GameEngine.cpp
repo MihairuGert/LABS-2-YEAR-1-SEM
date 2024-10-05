@@ -19,6 +19,13 @@ void GameEngine::computeNext(Grid& grid1, Grid& grid2) {
     }
 }
 
+void GameEngine::computeIterations(Grid &grid1, Grid &grid2, int iterations) {
+    for (int i = 0; i < iterations; ++i) {
+        computeNext(grid1,grid2);
+        grid1 = grid2;
+    }
+}
+
 int GameEngine::countNeighbors(Grid& grid, int x, int y) {
     int row = grid.getRow();
     int column = grid.getColumn();

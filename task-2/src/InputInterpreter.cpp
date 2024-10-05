@@ -7,7 +7,7 @@ bool InputInterpreter::checkFormat(const std::string& string) {
     return true;
 }
 
-std::string InputInterpreter::getName(std::string string) {\
+std::string InputInterpreter::getName(std::string string) {
     char prev2 = 0;
     char prev1 = 0;
     std::string res;

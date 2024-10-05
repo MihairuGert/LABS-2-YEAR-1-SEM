@@ -1,6 +1,6 @@
 #include "Grid.h"
 
-bool Grid::getElement(int columnInd, int rowInd) {
+bool Grid::getElement(int columnInd, int rowInd) const{
     return grid[rowInd][columnInd];
 }
 
@@ -22,19 +22,6 @@ void Grid::createGrid() {
         grid[i].resize(column);
     }
     clear();
-}
-
-void Grid::printGrid() {
-    for (int i = 0; i < row; ++i) {
-        for (int j = 0; j < column; ++j) {
-            if (grid[i][j])
-                std::cout << "#" << ' ';
-            else {
-                std::cout << " " << ' ';
-            }
-        }
-        std::cout << '\n';
-    }
 }
 
 Grid::Grid(int row, int column) {
