@@ -71,8 +71,7 @@ void BitArray::resize(int numBits, bool value) {
     if (numBits == this->numBits)
         return;
     // Check if we should not change bit array memory blocks.
-    int numBytesDifference = numBits - this->numBits;
-    if (numBytesDifference > -BITS_COUNT && numBytesDifference < BITS_COUNT && this->numBits > 0) {
+    if ((numBits / BITS_COUNT == this->numBits / BITS_COUNT) && this->numBits != -1) {
         this->numBits = numBits;
         return;
     }
@@ -275,7 +274,7 @@ int BitArray::count() const {
 
 Block& BitArray::operator[](int i) {
     if (i >= numBits) {
-        resize(i, false);
+        resize(i + 1, false);
     }
     else if (i < 0) {
         throw 1;
@@ -305,6 +304,9 @@ std::string BitArray::to_string() const {
 int BitArray::alignBits(int numBits) {
     if (numBits <= 0) {
         return 0;
+    }
+    if (numBits % BITS_COUNT == 0) {
+        numBits += BITS_COUNT;
     }
     if (numBits % BITS_COUNT != 0) {
         numBits += (BITS_COUNT - numBits % BITS_COUNT);
@@ -340,6 +342,22 @@ unsigned int BitArray::logPow(int num, int pow) const {
         return logPow(num * num, pow / 2);
     }
     return logPow(num, pow - 1) * num;
+}
+
+bool BitArray::operator[](int i) const {
+    Block* block = getBlock(i / BITS_COUNT);
+    block->lastIndex = i;
+    return *block;
+}
+
+int BitArray::getBlockAmount() const {
+    Block* positionPtr = basePtr;
+    int count = 0;
+    while (positionPtr) {
+        count++;
+        positionPtr = positionPtr->next;
+    }
+    return count;
 }
 
 bool operator==(const BitArray& a, const BitArray& b) {

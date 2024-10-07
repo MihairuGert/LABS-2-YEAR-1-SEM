@@ -109,7 +109,10 @@ public:
     int count() const;
 
     // Returns a reference to a bit value at the position i.
-    Block& operator[](int i) const;
+    Block& operator[](int i);
+
+    // Returns a bit value at the position i and does not edit anything.
+    bool operator[](int i) const;
 
     // Returns bit array size.
     int size() const;
@@ -119,6 +122,9 @@ public:
 
     // Returns string made of bits.
     std::string to_string() const;
+
+    // Counts blocks amount.
+    int getBlockAmount() const;
 };
 
 bool operator==(const BitArray& a, const BitArray& b);

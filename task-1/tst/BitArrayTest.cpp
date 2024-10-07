@@ -393,6 +393,14 @@ TEST(functionsAffectingBits, operatorSubscript) {
     EXPECT_TRUE(bitArray[size / 2 + 1] == false);
 }
 
+TEST(functionsAffectingBits, operatorSubscriptOverflow) {
+    int size = 100;
+    BitArray bitArray = BitArray(size);
+    bitArray[size] = true;
+    EXPECT_EQ(bitArray.to_string()[size], '1');
+    EXPECT_EQ(bitArray.getBlockAmount(), size / BITS_COUNT + 1);
+}
+
 TEST(functionsGettingInfo, size) {
     int size = 100;
     BitArray bitArray = BitArray(size);
