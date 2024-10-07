@@ -35,3 +35,7 @@ StatisticsModule::StatisticsModule() {
 	this->wordsStatistics = words;
 	wordsAmount = 0;
 }
+
+void StatisticsModule::addWordToStatistic(std::string word) {
+    findPositionInList(wordsStatistics);
+}

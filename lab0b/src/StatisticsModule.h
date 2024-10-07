@@ -21,6 +21,7 @@ private:
     void findPositionInList(WordFrequency& wordFrequency);
 public:
     std::list<WordFrequency> getWordsStatistics(const std::list<std::string>& wordsList);
+    void addWordToStatistic(std::string word);
 	StatisticsModule();
 };
 
