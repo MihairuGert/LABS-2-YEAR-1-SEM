@@ -273,9 +273,12 @@ int BitArray::count() const {
     return res;
 }
 
-Block& BitArray::operator[](int i) const {
-    if (i < 0 || i >= numBits) {
-        return *getBlock(0);
+Block& BitArray::operator[](int i) {
+    if (i >= numBits) {
+        resize(i, false);
+    }
+    else if (i < 0) {
+        throw 1;
     }
     Block* block = getBlock(i / BITS_COUNT);
     block->lastIndex = i;
