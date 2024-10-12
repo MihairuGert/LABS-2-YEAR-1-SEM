@@ -15,13 +15,15 @@ class StatisticsModule
 {
 private:
 	std::list<WordFrequency>* wordsStatistics;
-	int wordsAmount;
+    std::list<std::string>* wordsBank;
+	int wordsAmount{};
     static bool compare(WordFrequency& first, WordFrequency& second);
     void createStatistcsList(const std::list<std::string>& wordsList);
     void findPositionInList(WordFrequency& wordFrequency);
 public:
     std::list<WordFrequency> getWordsStatistics(const std::list<std::string>& wordsList);
-    void addWordToStatistic(std::string word);
+    std::list<WordFrequency> getWordsStatistics();
+    void addWordToStatistic(const std::string& word);
 	StatisticsModule();
 };
 

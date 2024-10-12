@@ -17,7 +17,6 @@ int main(int argc, char** argv) {
     FileReader fileReader = FileReader(argv[1]);
 	TextParser textParser;
 	parseText(fileReader, textParser);
-
 	StatisticsModule statisticsModule;
 
 	FilePrinter filePrinter = FilePrinter(argv[2]);
