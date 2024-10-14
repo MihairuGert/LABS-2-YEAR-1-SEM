@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.26)
-project(23202_PYATANOV_OOP_CPP)
+project(23202-PYATANOV)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(23202_PYATANOV_OOP_CPP
-        main.cpp)
+add_subdirectory(task-1)
+
+
