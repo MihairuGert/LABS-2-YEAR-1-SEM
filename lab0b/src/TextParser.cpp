@@ -1,34 +1,23 @@
 #include "TextParser.h"
 
-void TextParser::parseString(const std::string& line) {
-    std::string res;
+std::list<std::string> TextParser::parseString(const std::string& line) {
+    std::list<std::string> res;
+    std::string word;
     for (char i : line) {
         if (!(i < '0' || (i > '9' && i < 'A')
             || (i > 'Z' && i < 'a') || i > 'z')) {
-            res.push_back(i);
+            word.push_back(i);
         }
         else {
-            if (res.empty()) {
+            if (word.empty()) {
                 continue;
             }
-            (*wordsList).push_back(res);
-            res.clear();
+            res.push_back(word);
+            word.clear();
         }
     }
-    if (!res.empty()) {
-        (*wordsList).push_back(res);
+    if (!word.empty()) {
+        res.push_back(word);
     }
-}
-
-std::list<std::string> TextParser::getWordsList() {
-    return *wordsList;
-}
-
-TextParser::TextParser() {
-    auto* wordsList = new std::list<std::string>;
-    this->wordsList = wordsList;
-}
-
-void TextParser::clear() {
-    wordsList->clear();
+    return res;
 }

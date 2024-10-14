@@ -25,12 +25,7 @@ void StatisticsModule::findPositionInList(WordFrequency& wordFrequency) {
 	(*wordsStatistics).push_back(wordFrequency);
 }
 
-std::list<WordFrequency> StatisticsModule::getWordsStatistics(const std::list<std::string>& wordsList) {
-    createStatistcsList(wordsList);
-	return *wordsStatistics;
-}
-
-std::list<WordFrequency> StatisticsModule::getWordsStatistics() {
+std::list<WordFrequency> StatisticsModule::getStatistic() {
     if (!wordsBank) {
         return {};
     }
@@ -46,6 +41,6 @@ StatisticsModule::StatisticsModule() {
 	wordsAmount = 0;
 }
 
-void StatisticsModule::addWordToStatistic(const std::string& word) {
+void StatisticsModule::addWord(const std::string& word) {
     wordsBank->push_back(word);
 }

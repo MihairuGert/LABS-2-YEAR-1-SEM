@@ -9,11 +9,10 @@ TEST(Parser, parseString) {
     for (int i = 0; i < 7; ++i) {
         strings.push_back("test");
     }
-    EXPECT_EQ(textParser.getWordsList(), strings);
+    EXPECT_EQ(textParser.parseString(line), strings);
     line.clear();
     strings.clear();
     line = "";
     textParser.parseString(line);
-    textParser.clear();
-    EXPECT_EQ(textParser.getWordsList(), strings);
+    EXPECT_EQ(textParser.parseString(line), strings);
 }
