@@ -3,7 +3,7 @@
 
     set(CMAKE_CXX_STANDARD 11)
 
-    add_subdirectory(lab0b)
+    add_subdirectory(task-0)
     add_subdirectory(task-1)
 
 
