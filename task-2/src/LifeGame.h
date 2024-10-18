@@ -23,9 +23,9 @@ private:
     std::string universeName{};
     int iterationNum{};
     static void callHelp();
-public:
-    void startGame(char** argv);
     ParseFileStatus parseLifeFile(char** argv, bool* parseLifeFileStatus);
     void createLifeFile(const std::string& filename);
     GameStatus processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus);
+public:
+    void startGame(char** argv);
 };

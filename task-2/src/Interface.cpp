@@ -1,6 +1,6 @@
 #include "Interface.h"
 
-void Interface::printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
+void Interface::printInterface(const std::vector<std::vector<bool>>& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
                                const std::string& universeName, int iterationNum, const bool* parseLifeFileStatus) {
     system("cls");
     if (parseLifeFileStatus[1]) {
@@ -27,16 +27,16 @@ void Interface::printInterface(const Grid& grid, const std::vector<int>& birthCo
     printGrid(grid);
 }
 
-void Interface::printGrid(const Grid& grid) {
+void Interface::printGrid(const std::vector<std::vector<bool>>& grid) {
     std::cout << " ";
-    for (int j = 0; j < grid.getColumn(); ++j) {
+    for (int j = 0; j < grid[0].size(); ++j) {
         std::cout << "__";
     }
     std::cout << "\n";
-    for (int i = 0; i < grid.getRow(); ++i) {
+    for (int i = 0; i < grid.size(); ++i) {
         std::cout << '|';
-        for (int j = 0; j < grid.getColumn(); ++j) {
-            if (grid.getElement(j, i))
+        for (int j = 0; j < grid[i].size(); ++j) {
+            if (grid[i][j])
                 std::cout << "#" << ' ';
             else {
                 std::cout << " " << ' ';
@@ -44,7 +44,7 @@ void Interface::printGrid(const Grid& grid) {
         }
         std::cout << "|\n";
     }
-    for (int j = 0; j < grid.getColumn(); ++j) {
+    for (int j = 0; j < grid[0].size(); ++j) {
         std::cout << "--";
     }
     std::cout << "\n$  ";

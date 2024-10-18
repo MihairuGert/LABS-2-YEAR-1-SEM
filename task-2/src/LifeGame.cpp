@@ -13,7 +13,7 @@ void LifeGame::startGame(char** argv) {
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
     GameStatus gameStatus = GameStatus::CONTINUE;
     while (gameStatus == GameStatus::CONTINUE) {
-        Interface::printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
+        Interface::printInterface(grid1.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
         Cmd cmd = Interface::getCommand();
         gameStatus = processCmd(cmd, gameEngine, parseLifeFileStatus);
     }
@@ -115,7 +115,7 @@ GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeF
         for (int i = 0; i < attributesInt; ++i) {
             ++iterationNum;
             gameEngine.computeIterations(grid1,grid2);
-            Interface::printInterface(grid1, birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
+            Interface::printInterface(grid1.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
         }
     }
     else if (cmd.getName() == "dump") {

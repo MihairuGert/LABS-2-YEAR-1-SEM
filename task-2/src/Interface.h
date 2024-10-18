@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Grid.h"
 
 class Cmd {
 private:
@@ -16,9 +15,9 @@ public:
 
 class Interface {
 private:
-    static void printGrid(const Grid& grid);
+    static void printGrid(const std::vector<std::vector<bool>>& grid);
 public:
-    static void printInterface(const Grid& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
+    static void printInterface(const std::vector<std::vector<bool>>& grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition,
                         const std::string& universeName, int iterationNum, const bool* parseLifeFIleStatus);
     static Cmd getCommand();
     static void printHelp();
