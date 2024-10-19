@@ -2,6 +2,6 @@
 
 int main(int argc, char** argv) {
     LifeGame game = LifeGame();
-    game.startGame(argv);
+    game.startGame(argc, argv);
 	return 0;
 }

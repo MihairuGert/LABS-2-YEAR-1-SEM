@@ -1,5 +1,6 @@
 #pragma once
 #include <random>
+#include <cstring>
 #include "GameEngine.h"
 #include "FileReader.h"
 #include "FilePrinter.h"
@@ -26,9 +27,10 @@ private:
     void createLifeFile(const std::string& filename);
     GameStatus processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus);
     void generateUniverse();
-    void createGliderGun(Grid& grid);
-    void createPulsar(Grid& grid);
-    void createRPentamino(Grid& grid);
+    static void createGliderGun(Grid& grid);
+    static void createPulsar(Grid& grid);
+    static void createRPentamino(Grid& grid);
+    static void processConsole(int argc, char** argv, int& iterations, std::string& filename);
 public:
-    void startGame(char** argv);
+    void startGame(int argc, char** argv);
 };
