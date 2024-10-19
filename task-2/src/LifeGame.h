@@ -10,7 +10,7 @@
 const int DEFAULT_SIZE = 50;
 
 enum class GameStatus {EXIT = 0, CONTINUE};
-enum class ParseFileStatus {SUCCESS = 0, NO_FORMAT}; //dangerous!
+enum class ParseFileStatus {SUCCESS = 0, NO_FORMAT};
 
 class LifeGame {
 private:
@@ -23,7 +23,13 @@ private:
     std::string universeName{};
     int iterationNum{};
     static void callHelp();
+
     ParseFileStatus parseLifeFile(char** argv, bool* parseLifeFileStatus);
+    void processName(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine);
+    void processConditions(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine);
+    void processSize(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine);
+    void processCells(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine);
+
     void createLifeFile(const std::string& filename);
     GameStatus processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus);
     void generateUniverse();
@@ -31,6 +37,9 @@ private:
     static void createPulsar(Grid& grid);
     static void createRPentamino(Grid& grid);
     static void processConsole(int argc, char** argv, int& iterations, std::string& filename);
+
+    void runOfflineMode(int argc, char** argv, bool* parseLifeFileStatus);
+    void runOnlineMode(int argc, char** argv, bool* parseLifeFileStatus);
 public:
     void startGame(int argc, char** argv);
 };

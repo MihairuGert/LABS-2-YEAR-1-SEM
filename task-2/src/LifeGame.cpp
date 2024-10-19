@@ -1,31 +1,17 @@
 #include "LifeGame.h"
 
-void LifeGame::startGame(int argc, char** argv) {
-    // If no file is provided, generates universe and runs online mode.
-    if (!argv[1] && !argv[2]) {
-        generateUniverse();
-    }
-    bool parseLifeFileStatus[6] = {0};
-    // Offline mode.
-    if (argv[1] && argv[2]) {
-        // Reading name, rules, starting cells from file.
-        parseLifeFile(argv, parseLifeFileStatus);
-        GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
-        std::string filename;
-        int iterations = 1;
-        processConsole(argc, argv, iterations, filename);
-        gameEngine.computeIterations(grid1, grid2, iterations);
-        filename += ".life";
-        createLifeFile(filename);
-        return;
-    }
-    // Online mode.
-    else if (argv[1] && !argv[2] && parseLifeFile(argv, parseLifeFileStatus) == ParseFileStatus::NO_FORMAT) {
-        std::cout << "ERROR: WRONG FILE FORMAT.\nPress any button to continue...";
-        std::getchar();
-        return;
-    }
-    // Start game with given rules.
+void LifeGame::runOfflineMode(int argc, char** argv, bool* parseLifeFileStatus) {
+    parseLifeFile(argv, parseLifeFileStatus);
+    GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
+    std::string filename;
+    int iterations = 1;
+    processConsole(argc, argv, iterations, filename);
+    gameEngine.computeIterations(grid1, grid2, iterations);
+    filename += ".life";
+    createLifeFile(filename);
+}
+
+void LifeGame::runOnlineMode(int argc, char** argv, bool* parseLifeFileStatus) {
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
     GameStatus gameStatus = GameStatus::CONTINUE;
     while (gameStatus == GameStatus::CONTINUE) {
@@ -35,26 +21,38 @@ void LifeGame::startGame(int argc, char** argv) {
     }
 }
 
-ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) {
-    FileReader fileReader = FileReader(argv[1]);
-    // If incorrect format, returns the error.
-    if (!InputInterpreter::checkFormat(fileReader.getLine())) {
-        return ParseFileStatus::NO_FORMAT;
+void LifeGame::startGame(int argc, char** argv) {
+    // If no file is provided, generates universe and runs online mode.
+    if (!argv[1] && !argv[2]) {
+        generateUniverse();
     }
-    // Flag not to miss a string if any is absent.
-    bool isSuccessGetLine = true;
-    // Getting universe name.
-    std::string fileLine = fileReader.getLine();
+    bool parseLifeFileStatus[6] = {0};
+    // Offline mode.
+    if (argv[1] && argv[2]) {
+        // Reading name, rules, starting cells from file.
+        runOfflineMode(argc, argv, parseLifeFileStatus);
+        return;
+    }
+    // Online mode.
+    else if (argv[1] && !argv[2] && parseLifeFile(argv, parseLifeFileStatus) == ParseFileStatus::NO_FORMAT) {
+        std::cout << "ERROR: WRONG FILE FORMAT.\nPress any button to continue...";
+        std::getchar();
+        return;
+    }
+    // Start game with given rules.
+    runOnlineMode(argc, argv, parseLifeFileStatus);
+}
+
+void LifeGame::processName(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
     universeName = InputInterpreter::getName(fileLine);
     if (universeName.empty()) {
         parseLifeFileStatus[1] = true;
         universeName = "NO_NAME";
         isSuccessGetLine = false;
     }
-    // Getting birth and survival conditions.
-    if (isSuccessGetLine) {
-        fileLine = fileReader.getLine();
-    }
+}
+
+void LifeGame::processConditions(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
     std::vector<std::vector<int>> rules = InputInterpreter::getConditions(fileLine, parseLifeFileStatus);
     if (parseLifeFileStatus[2]) {
         isSuccessGetLine = false;
@@ -63,10 +61,9 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
     }
     birthCondition = rules[0];
     survivalCondition = rules[1];
-    // Getting the grid size.
-    if (isSuccessGetLine) {
-        fileLine = fileReader.getLine();
-    }
+}
+
+void LifeGame::processSize(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
     std::vector<int> size = InputInterpreter::getSize(fileLine, parseLifeFileStatus);
     if (parseLifeFileStatus[3]) {
         isSuccessGetLine = false;
@@ -77,6 +74,49 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
     row = size[1];
     grid1 = Grid(size[0], size[1]);
     grid2 = Grid(size[0], size[1]);
+}
+
+void LifeGame::processCells(std::string &fileLine, bool *parseLifeFileStatus, bool &isSuccessGetLine) {
+    std::vector<int> cells = InputInterpreter::getCell(fileLine);
+    if (cells[0] < 0 || cells[1] < 0) {
+        parseLifeFileStatus[4] = true;
+        if (cells[0] < 0) {
+            while(cells[0] < 0) {
+                cells[0] += column;
+            }
+        }
+        if (cells[1] < 0) {
+            while(cells[1] < 0) {
+                cells[1] += row;
+            }
+        }
+    }
+    grid1.setElement(cells[0], cells[1]);
+    isSuccessGetLine = true;
+}
+
+ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) {
+    FileReader fileReader = FileReader(argv[1]);
+    // If incorrect format, returns the error.
+    if (!InputInterpreter::checkFormat(fileReader.getLine())) {
+        return ParseFileStatus::NO_FORMAT;
+    }
+    // Flag not to miss a string if another is absent.
+    bool isSuccessGetLine = true;
+    // Getting universe name.
+    std::string fileLine;
+    fileLine = fileReader.getLine();
+    processName(fileLine, parseLifeFileStatus, isSuccessGetLine);
+    // Getting birth and survival conditions.
+    if (isSuccessGetLine) {
+        fileLine = fileReader.getLine();
+    }
+    processConditions(fileLine, parseLifeFileStatus, isSuccessGetLine);
+    // Getting the grid size.
+    if (isSuccessGetLine) {
+        fileLine = fileReader.getLine();
+    }
+    processSize(fileLine, parseLifeFileStatus, isSuccessGetLine);
     // Getting alive cells.
     while (true) {
         if (isSuccessGetLine) {
@@ -85,22 +125,7 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
         if (fileLine.empty()) {
             break;
         }
-        std::vector<int> cells = InputInterpreter::getCell(fileLine);
-        if (cells[0] < 0 || cells[1] < 0) {
-            parseLifeFileStatus[4] = true;
-            if (cells[0] < 0) {
-                while(cells[0] < 0) {
-                    cells[0] += column;
-                }
-            }
-            if (cells[1] < 0) {
-                while(cells[1] < 0) {
-                    cells[1] += row;
-                }
-            }
-        }
-        grid1.setElement(cells[0], cells[1]);
-        isSuccessGetLine = true;
+        processCells(fileLine, parseLifeFileStatus, isSuccessGetLine);
     }
     return ParseFileStatus::SUCCESS;
 }
@@ -196,6 +221,9 @@ void LifeGame::processConsole(int argc, char** argv, int& iterations, std::strin
         }
         if (argv[i][0] == '-' && argv[i][1] == 'i') {
             ++i;
+            if (argv[i][0] > '9' || argv[i][0] < '0') {
+                throw 1;
+            }
             iterations = std::stoi(argv[i]);
         }
         if (argv[i][0] == '-' && argv[i][1] == 'o') {
