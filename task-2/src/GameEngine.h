@@ -12,7 +12,7 @@ public:
     Grid(int column, int row);
     Grid();
     bool getElement(int columnInd, int rowInd) const;
-    inline void setElement(int columnInd, int rowInd, bool value = true);
+    void setElement(int columnInd, int rowInd, bool value = true);
     int getRow() const;
     int getColumn() const;
     std::vector<std::vector<bool>> getGrid();
