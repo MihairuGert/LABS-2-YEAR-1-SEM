@@ -2,12 +2,14 @@
 
 void LifeGame::startGame(char** argv) {
     // Reading name, rules, starting cells from file.
-    // TODO: CHECK FOR NULLPTR AND NO_FORMAT. GENERATE UNIVERSE IF NEEDED.
     bool parseLifeFileStatus[6] = {0};
-    if (parseLifeFile(argv, parseLifeFileStatus) == ParseFileStatus::NO_FORMAT) {
+    if (argv[1] && parseLifeFile(argv, parseLifeFileStatus) == ParseFileStatus::NO_FORMAT) {
         std::cout << "ERROR: WRONG FILE FORMAT.\nPress any button to continue...";
         std::getchar();
         return;
+    }
+    else if(!argv[1]) {
+        generateUniverse();
     }
     // Start game with given rules.
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
@@ -83,7 +85,7 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
                 }
             }
         }
-        grid1.setElement(cells[0], cells[1], true);
+        grid1.setElement(cells[0], cells[1]);
         isSuccessGetLine = true;
     }
     return ParseFileStatus::SUCCESS;
@@ -169,4 +171,133 @@ void LifeGame::createLifeFile(const std::string& filename) {
 void LifeGame::callHelp() {
     Interface::printHelp();
     std::getchar();
+}
+
+void LifeGame::generateUniverse() {
+    srand(time(0));
+    int variant = rand() % 3;
+    column = DEFAULT_SIZE;
+    row = DEFAULT_SIZE;
+    grid1 = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
+    grid2 = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
+    birthCondition = {3};
+    survivalCondition = {2,3};
+    switch (variant) {
+        case 0:
+            universeName = "Glider Gun";
+            createGliderGun(grid1);
+            break;
+        case 1:
+            universeName = "Pulsar";
+            createPulsar(grid1);
+            break;
+        case 2:
+            universeName = "R-Pentomino";
+            createRPentamino(grid1);
+            break;
+        default:
+            throw 1;
+            break;
+    }
+}
+
+void LifeGame::createGliderGun(Grid &grid) {
+    grid1.setElement(1, 5);
+    grid1.setElement(1, 6);
+    grid1.setElement(2, 5);
+    grid1.setElement(2, 6);
+    grid1.setElement(11, 5);
+    grid1.setElement(11, 6);
+    grid1.setElement(11, 7);
+    grid1.setElement(12, 4);
+    grid1.setElement(12, 8);
+    grid1.setElement(13, 3);
+    grid1.setElement(13, 9);
+    grid1.setElement(14, 3);
+    grid1.setElement(14, 9);
+    grid1.setElement(15, 6);
+    grid1.setElement(16, 4);
+    grid1.setElement(16, 8);
+    grid1.setElement(17, 5);
+    grid1.setElement(17, 6);
+    grid1.setElement(17, 7);
+    grid1.setElement(18, 6);
+    grid1.setElement(21, 3);
+    grid1.setElement(21, 4);
+    grid1.setElement(21, 5);
+    grid1.setElement(22, 3);
+    grid1.setElement(22, 4);
+    grid1.setElement(22, 5);
+    grid1.setElement(23, 2);
+    grid1.setElement(23, 6);
+    grid1.setElement(25, 1);
+    grid1.setElement(25, 2);
+    grid1.setElement(25, 6);
+    grid1.setElement(25, 7);
+    grid1.setElement(35, 3);
+    grid1.setElement(35, 4);
+    grid1.setElement(36, 3);
+    grid1.setElement(36, 4);
+}
+
+void LifeGame::createPulsar(Grid &grid) {
+    int offset = DEFAULT_SIZE / 3;
+    grid.setElement(2 + offset, 4 + offset);
+    grid.setElement(2 + offset, 5 + offset);
+    grid.setElement(2 + offset, 6 + offset);
+    grid.setElement(2 + offset, 10 + offset);
+    grid.setElement(2 + offset, 11 + offset);
+    grid.setElement(2 + offset, 12 + offset);
+    grid.setElement(4 + offset, 2 + offset);
+    grid.setElement(4 + offset, 7 + offset);
+    grid.setElement(4 + offset, 9 + offset);
+    grid.setElement(4 + offset, 14 + offset);
+    grid.setElement(5 + offset, 2 + offset);
+    grid.setElement(5 + offset, 7 + offset);
+    grid.setElement(5 + offset, 9 + offset);
+    grid.setElement(5 + offset, 14 + offset);
+    grid.setElement(6 + offset, 2 + offset);
+    grid.setElement(6 + offset, 7 + offset);
+    grid.setElement(6 + offset, 9 + offset);
+    grid.setElement(6 + offset, 14 + offset);
+    grid.setElement(7 + offset, 4 + offset);
+    grid.setElement(7 + offset, 5 + offset);
+    grid.setElement(7 + offset, 6 + offset);
+    grid.setElement(7 + offset, 10 + offset);
+    grid.setElement(7 + offset, 11 + offset);
+    grid.setElement(7 + offset, 12 + offset);
+    grid.setElement(9 + offset, 4 + offset);
+    grid.setElement(9 + offset, 5 + offset);
+    grid.setElement(9 + offset, 6 + offset);
+    grid.setElement(9 + offset, 10 + offset);
+    grid.setElement(9 + offset, 11 + offset);
+    grid.setElement(9 + offset, 12 + offset);
+    grid.setElement(10 + offset, 2 + offset);
+    grid.setElement(10 + offset, 7 + offset);
+    grid.setElement(10 + offset, 9 + offset);
+    grid.setElement(10 + offset, 14 + offset);
+    grid.setElement(11 + offset, 2 + offset);
+    grid.setElement(11 + offset, 7 + offset);
+    grid.setElement(11 + offset, 9 + offset);
+    grid.setElement(11 + offset, 14 + offset);
+    grid.setElement(12 + offset, 2 + offset);
+    grid.setElement(12 + offset, 7 + offset);
+    grid.setElement(12 + offset, 9 + offset);
+    grid.setElement(12 + offset, 14 + offset);
+    grid.setElement(14 + offset, 4 + offset);
+    grid.setElement(14 + offset, 5 + offset);
+    grid.setElement(14 + offset, 6 + offset);
+    grid.setElement(14 + offset, 10 + offset);
+    grid.setElement(14 + offset, 11 + offset);
+    grid.setElement(14 + offset, 12 + offset);
+}
+
+void LifeGame::createRPentamino(Grid &grid) {
+    universeName = "R-Pentomino";
+    int offset = DEFAULT_SIZE / 2;
+    grid.setElement(1 + offset, 2 + offset);
+    grid.setElement(2 + offset, 1 + offset);
+    grid.setElement(2 + offset, 2 + offset);
+    grid.setElement(3 + offset, 1 + offset);
+    grid.setElement(2 + offset, 3 + offset);
 }

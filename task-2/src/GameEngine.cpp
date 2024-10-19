@@ -4,7 +4,7 @@ bool Grid::getElement(int columnInd, int rowInd) const{
     return grid[rowInd][columnInd];
 }
 
-void Grid::setElement(int columnInd, int rowInd, bool value) {
+inline void Grid::setElement(int columnInd, int rowInd, bool value) {
     grid[rowInd][columnInd] = value;
 }
 
