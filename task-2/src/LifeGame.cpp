@@ -1,6 +1,6 @@
 #include "LifeGame.h"
 
-void LifeGame::runOfflineMode(int argc, char** argv, bool* parseLifeFileStatus) {
+void LifeGame::runOffline(int argc, char** argv, bool* parseLifeFileStatus) {
     parseLifeFile(argv, parseLifeFileStatus);
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
     std::string filename;
@@ -11,7 +11,7 @@ void LifeGame::runOfflineMode(int argc, char** argv, bool* parseLifeFileStatus) 
     createLifeFile(filename);
 }
 
-void LifeGame::runOnlineMode(int argc, char** argv, bool* parseLifeFileStatus) {
+void LifeGame::runOnline(bool* parseLifeFileStatus) {
     GameEngine gameEngine = GameEngine(birthCondition,survivalCondition);
     GameStatus gameStatus = GameStatus::CONTINUE;
     while (gameStatus == GameStatus::CONTINUE) {
@@ -30,7 +30,7 @@ void LifeGame::startGame(int argc, char** argv) {
     // Offline mode.
     if (argv[1] && argv[2]) {
         // Reading name, rules, starting cells from file.
-        runOfflineMode(argc, argv, parseLifeFileStatus);
+        runOffline(argc, argv, parseLifeFileStatus);
         return;
     }
     // Online mode.
@@ -40,10 +40,10 @@ void LifeGame::startGame(int argc, char** argv) {
         return;
     }
     // Start game with given rules.
-    runOnlineMode(argc, argv, parseLifeFileStatus);
+    runOnline(parseLifeFileStatus);
 }
 
-void LifeGame::processName(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
+void Parser::processName(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine, std::string& universeName) {
     universeName = InputInterpreter::getName(fileLine);
     if (universeName.empty()) {
         parseLifeFileStatus[1] = true;
@@ -52,7 +52,8 @@ void LifeGame::processName(std::string& fileLine, bool *parseLifeFileStatus, boo
     }
 }
 
-void LifeGame::processConditions(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
+void Parser::processConditions(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine, std::vector<int>& birthCondition,
+                               std::vector<int>& survivalCondition) {
     std::vector<std::vector<int>> rules = InputInterpreter::getConditions(fileLine, parseLifeFileStatus);
     if (parseLifeFileStatus[2]) {
         isSuccessGetLine = false;
@@ -63,7 +64,8 @@ void LifeGame::processConditions(std::string& fileLine, bool *parseLifeFileStatu
     survivalCondition = rules[1];
 }
 
-void LifeGame::processSize(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine) {
+void Parser::processSize(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine,
+                         int& column, int& row, Grid& grid1, Grid& grid2) {
     std::vector<int> size = InputInterpreter::getSize(fileLine, parseLifeFileStatus);
     if (parseLifeFileStatus[3]) {
         isSuccessGetLine = false;
@@ -76,7 +78,8 @@ void LifeGame::processSize(std::string& fileLine, bool *parseLifeFileStatus, boo
     grid2 = Grid(size[0], size[1]);
 }
 
-void LifeGame::processCells(std::string &fileLine, bool *parseLifeFileStatus, bool &isSuccessGetLine) {
+void Parser::processCells(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine,
+                          int& column, int& row, Grid& grid1) {
     std::vector<int> cells = InputInterpreter::getCell(fileLine);
     if (cells[0] < 0 || cells[1] < 0) {
         parseLifeFileStatus[4] = true;
@@ -106,17 +109,17 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
     // Getting universe name.
     std::string fileLine;
     fileLine = fileReader.getLine();
-    processName(fileLine, parseLifeFileStatus, isSuccessGetLine);
+    Parser::processName(fileLine, parseLifeFileStatus, isSuccessGetLine, universeName);
     // Getting birth and survival conditions.
     if (isSuccessGetLine) {
         fileLine = fileReader.getLine();
     }
-    processConditions(fileLine, parseLifeFileStatus, isSuccessGetLine);
+    Parser::processConditions(fileLine, parseLifeFileStatus, isSuccessGetLine, birthCondition, survivalCondition);
     // Getting the grid size.
     if (isSuccessGetLine) {
         fileLine = fileReader.getLine();
     }
-    processSize(fileLine, parseLifeFileStatus, isSuccessGetLine);
+    Parser::processSize(fileLine, parseLifeFileStatus, isSuccessGetLine, column, row, grid1, grid2);
     // Getting alive cells.
     while (true) {
         if (isSuccessGetLine) {
@@ -125,7 +128,7 @@ ParseFileStatus LifeGame::parseLifeFile(char** argv, bool* parseLifeFileStatus) 
         if (fileLine.empty()) {
             break;
         }
-        processCells(fileLine, parseLifeFileStatus, isSuccessGetLine);
+        Parser::processCells(fileLine, parseLifeFileStatus, isSuccessGetLine, column, row, grid1);
     }
     return ParseFileStatus::SUCCESS;
 }
@@ -248,7 +251,7 @@ void LifeGame::processConsole(int argc, char** argv, int& iterations, std::strin
 
 void LifeGame::generateUniverse() {
     srand(time(0));
-    int variant = rand() % 3;
+    int variant = rand() % 5;
     column = DEFAULT_SIZE;
     row = DEFAULT_SIZE;
     grid1 = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
@@ -258,22 +261,30 @@ void LifeGame::generateUniverse() {
     switch (variant) {
         case 0:
             universeName = "Glider Gun";
-            createGliderGun(grid1);
+            Generator::createGliderGun(grid1);
             break;
         case 1:
             universeName = "Pulsar";
-            createPulsar(grid1);
+            Generator::createPulsar(grid1);
             break;
         case 2:
             universeName = "R-Pentomino";
-            createRPentamino(grid1);
+            Generator::createRPentamino(grid1);
+            break;
+        case 3:
+            universeName = "Lightweight spaceship";
+            Generator::createLightWeightSS(grid1);
+            break;
+        case 4:
+            universeName = "Block-Laying Switch Engine";
+            Generator::createBlockLayingSE(grid1);
             break;
         default:
             throw 1;
     }
 }
 
-void LifeGame::createGliderGun(Grid &grid) {
+void Generator::createGliderGun(Grid &grid) {
     grid.setElement(1, 5);
     grid.setElement(1, 6);
     grid.setElement(2, 5);
@@ -312,7 +323,7 @@ void LifeGame::createGliderGun(Grid &grid) {
     grid.setElement(36, 4);
 }
 
-void LifeGame::createPulsar(Grid &grid) {
+void Generator::createPulsar(Grid &grid) {
     int offset = DEFAULT_SIZE / 3;
     grid.setElement(2 + offset, 4 + offset);
     grid.setElement(2 + offset, 5 + offset);
@@ -364,11 +375,46 @@ void LifeGame::createPulsar(Grid &grid) {
     grid.setElement(14 + offset, 12 + offset);
 }
 
-void LifeGame::createRPentamino(Grid &grid) {
+void Generator::createRPentamino(Grid &grid) {
     int offset = DEFAULT_SIZE / 2;
     grid.setElement(1 + offset, 2 + offset);
     grid.setElement(2 + offset, 1 + offset);
     grid.setElement(2 + offset, 2 + offset);
     grid.setElement(3 + offset, 1 + offset);
     grid.setElement(2 + offset, 3 + offset);
+}
+
+void Generator::createLightWeightSS(Grid &grid) {
+    int offset = DEFAULT_SIZE / 2;
+    grid.setElement(1 + offset, 0 + offset);
+    grid.setElement(4 + offset, 0 + offset);
+    grid.setElement(0 + offset, 1 + offset);
+    grid.setElement(0 + offset, 2 + offset);
+    grid.setElement(0 + offset, 3 + offset);
+    grid.setElement(1 + offset, 3 + offset);
+    grid.setElement(2 + offset, 3 + offset);
+    grid.setElement(3 + offset, 3 + offset);
+    grid.setElement(4 + offset, 2 + offset);
+}
+
+void Generator::createBlockLayingSE(Grid &grid) {
+    int offset = DEFAULT_SIZE / 3;
+    grid.setElement(2 + offset, 2 + offset);
+    grid.setElement(2 + offset, 3 + offset);
+    grid.setElement(3 + offset, 1 + offset);
+    grid.setElement(3 + offset, 4 + offset);
+    grid.setElement(4 + offset, 4 + offset);
+    grid.setElement(5 + offset, 1 + offset);
+    grid.setElement(5 + offset, 4 + offset);
+    grid.setElement(6 + offset, 2 + offset);
+    grid.setElement(6 + offset, 3 + offset);
+    grid.setElement(7 + offset, 3 + offset);
+    grid.setElement(8 + offset, 1 + offset);
+    grid.setElement(8 + offset, 4 + offset);
+    grid.setElement(9 + offset, 2 + offset);
+    grid.setElement(9 + offset, 3 + offset);
+    grid.setElement(10 + offset, 2 + offset);
+    grid.setElement(10 + offset, 3 + offset);
+    grid.setElement(11 + offset, 2 + offset);
+    grid.setElement(11 + offset, 3 + offset);
 }

@@ -27,8 +27,8 @@ private:
     std::vector<int> survivalCondition;
     bool isSurvived(int num);
     bool isBorn(int num);
+    void computeNext(Grid& grid1, Grid& grid2);
 public:
     GameEngine(const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition);
-    void computeNext(Grid& grid1, Grid& grid2);
     void computeIterations(Grid& grid1, Grid& grid2, int iterations = 1);
 };

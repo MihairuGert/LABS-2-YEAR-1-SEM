@@ -1,19 +1,6 @@
 #include "gtest/gtest.h"
 #include "GameEngine.h"
 
-TEST(GameEngineTest, computeNext) {
-    Grid grid1 = Grid(10,10);
-    Grid grid2 = Grid(10,10);
-    grid1.setElement(4, 4);
-    grid1.setElement(5,4);
-    grid1.setElement(3,4);
-    GameEngine gameEngine = GameEngine({3}, {2,3});
-    gameEngine.computeNext(grid1,grid2);
-    EXPECT_EQ(grid2.getElement(4,4), true);
-    EXPECT_EQ(grid2.getElement(4,3), true);
-    EXPECT_EQ(grid2.getElement(4,5), true);
-}
-
 TEST(GameEngineTest, computeIterations1) {
     Grid grid1 = Grid(10,10);
     Grid grid2 = Grid(10,10);
