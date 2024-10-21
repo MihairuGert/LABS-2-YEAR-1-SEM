@@ -12,11 +12,11 @@ enum class GameStatus {EXIT = 0, CONTINUE};
 
 class Generator {
 public:
-    static void createGliderGun(Grid& grid);
-    static void createPulsar(Grid& grid);
-    static void createRPentamino(Grid& grid);
-    static void createLightWeightSS(Grid& grid);
-    static void createBlockLayingSE(Grid& grid);
+    void createGliderGun(Grid& grid);
+    void createPulsar(Grid& grid);
+    void createRPentamino(Grid& grid);
+    void createLightWeightSS(Grid& grid);
+    void createBlockLayingSE(Grid& grid);
 };
 
 class LifeGame {
@@ -25,23 +25,22 @@ private:
     std::vector<int> survivalCondition;
     int row;
     int column;
-    Grid grid1;
-    Grid grid2;
+    Grid grid;
     std::string universeName{};
     std::string filename{};
     int iterationsOffline{};
     int iterationNum{};
     ParseFileStatus parseFileStatus;
-    bool* parseLifeFileStatus;
+    bool* parsingErrors;
     void createLifeFile(const std::string& filename);
-    GameStatus processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus);
+    GameStatus processCmd(Cmd cmd, GameEngine& gameEngine);
     void generateUniverse();
     static void callHelp();
-    void runOffline(bool* parseLifeFileStatus);
-    void runOnline(bool* parseLifeFileStatus);
+    void runOffline();
+    void runOnline();
 public:
     LifeGame(std::vector<int> birthCondition, std::vector<int> survivalCondition,
-             int row, int column, Grid grid1,std::string universeName, ParseFileStatus parseFileStatus,
+             int row, int column, Grid grid, std::string universeName, ParseFileStatus parseFileStatus,
              bool* parseLifeFileStatus, std::string filename = "", int iterationsOffline = 0);
     void startGame();
 };

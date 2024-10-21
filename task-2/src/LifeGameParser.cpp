@@ -15,14 +15,14 @@ std::string InputInterpreter::getName(const std::string& string) {
     return string.substr(start);
 }
 
-std::vector<std::vector<int>> InputInterpreter::getConditions(const std::string& string, bool* parseLifeFileStatus) {
+std::vector<std::vector<int>> InputInterpreter::getConditions(const std::string& string, bool* parsingErrors) {
     std::vector<std::vector<int>> rules;
     rules.resize(2);
     int start = string.find('B') + 1;
     int end = string.find('/');
     std::string data = string.substr(start, end - start);
     if (start == 0 || end == -1) {
-        parseLifeFileStatus[2] = true;
+        parsingErrors[2] = true;
         rules[0] = {3};
         rules[1] = {2, 3};
         return rules;
@@ -39,7 +39,7 @@ std::vector<std::vector<int>> InputInterpreter::getConditions(const std::string&
     }
     start = string.find('S') + 1;
     if (start == 0) {
-        parseLifeFileStatus[2] = true;
+        parsingErrors[2] = true;
         rules[1] = {2, 3};
         return rules;
     } else {
@@ -79,7 +79,7 @@ std::vector<int> InputInterpreter::getCell(const std::string& string) {
     return res;
 }
 
-std::vector<int> InputInterpreter::getSize(const std::string& string, bool* parseLifeFileStatus) {
+std::vector<int> InputInterpreter::getSize(const std::string& string, bool* parsingErrors) {
     std::vector<int> res;
     res.resize(2);
     int start = string.find('C') + 1;
@@ -87,7 +87,7 @@ std::vector<int> InputInterpreter::getSize(const std::string& string, bool* pars
     if (start == 0 || end == -1) {
         res[0] = 50;
         res[1] = 50;
-        parseLifeFileStatus[3] = true;
+        parsingErrors[3] = true;
         return res;
     } else {
         int column = std::stoi(string.substr(start, end - start));
@@ -96,7 +96,7 @@ std::vector<int> InputInterpreter::getSize(const std::string& string, bool* pars
     start = string.find('R') + 1;
     if (start == 0) {
         res[1] = 50;
-        parseLifeFileStatus[3] = true;
+        parsingErrors[3] = true;
         return res;
     } else {
         int row = std::stoi(string.substr(start));
@@ -105,19 +105,21 @@ std::vector<int> InputInterpreter::getSize(const std::string& string, bool* pars
     return res;
 }
 
-void Parser::processName(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine, std::string& universeName) {
-    universeName = InputInterpreter::getName(fileLine);
+void Parser::processName(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine, std::string& universeName) {
+    InputInterpreter inputInterpreter;
+    universeName = inputInterpreter.getName(fileLine);
     if (universeName.empty()) {
-        parseLifeFileStatus[1] = true;
+        parsingErrors[1] = true;
         universeName = "NO_NAME";
         isSuccessGetLine = false;
     }
 }
 
-void Parser::processConditions(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine, std::vector<int>& birthCondition,
+void Parser::processConditions(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine, std::vector<int>& birthCondition,
                                std::vector<int>& survivalCondition) {
-    std::vector<std::vector<int>> rules = InputInterpreter::getConditions(fileLine, parseLifeFileStatus);
-    if (parseLifeFileStatus[2]) {
+    InputInterpreter inputInterpreter;
+    std::vector<std::vector<int>> rules =  inputInterpreter.getConditions(fileLine, parsingErrors);
+    if (parsingErrors[2]) {
         isSuccessGetLine = false;
     } else {
         isSuccessGetLine = true;
@@ -126,25 +128,26 @@ void Parser::processConditions(std::string& fileLine, bool *parseLifeFileStatus,
     survivalCondition = rules[1];
 }
 
-void Parser::processSize(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine,
-                         int& column, int& row, Grid& grid1, Grid& grid2) {
-    std::vector<int> size = InputInterpreter::getSize(fileLine, parseLifeFileStatus);
-    if (parseLifeFileStatus[3]) {
+void Parser::processSize(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine,
+                         int& column, int& row, Grid& grid) {
+    InputInterpreter inputInterpreter;
+    std::vector<int> size = inputInterpreter.getSize(fileLine, parsingErrors);
+    if (parsingErrors[3]) {
         isSuccessGetLine = false;
     } else {
         isSuccessGetLine = true;
     }
     column = size[0];
     row = size[1];
-    grid1 = Grid(size[0], size[1]);
-    grid2 = Grid(size[0], size[1]);
+    grid = Grid(size[0], size[1]);
 }
 
-void Parser::processCells(std::string& fileLine, bool *parseLifeFileStatus, bool& isSuccessGetLine,
-                          int& column, int& row, Grid& grid1) {
-    std::vector<int> cells = InputInterpreter::getCell(fileLine);
+void Parser::processCells(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine,
+                          int& column, int& row, Grid& grid) {
+    InputInterpreter inputInterpreter;
+    std::vector<int> cells = inputInterpreter.getCell(fileLine);
     if (cells[0] < 0 || cells[1] < 0) {
-        parseLifeFileStatus[4] = true;
+        parsingErrors[4] = true;
         if (cells[0] < 0) {
             while(cells[0] < 0) {
                 cells[0] += column;
@@ -156,35 +159,37 @@ void Parser::processCells(std::string& fileLine, bool *parseLifeFileStatus, bool
             }
         }
     }
-    grid1.setElement(cells[0], cells[1]);
+    grid.setElement(cells[0], cells[1]);
     isSuccessGetLine = true;
 }
 
-ParseFileStatus LifeGameParser::parseLifeFile(int argc, char **argv, bool *parseLifeFileStatus) {
+ParseFileStatus LifeGameParser::parseLifeFile(int argc, char **argv, bool *parsingErrors) {
     if (!argv[1]) {
         return ParseFileStatus::GENERATE;
     }
     FileReader fileReader = FileReader(argv[1]);
+    InputInterpreter inputInterpreter;
     // If incorrect format, returns the error.
-    if (!InputInterpreter::checkFormat(fileReader.getLine())) {
+    if (!inputInterpreter.checkFormat(fileReader.getLine())) {
         return ParseFileStatus::NO_FORMAT;
     }
     // Flag not to miss a string if another is absent.
     bool isSuccessGetLine = true;
     // Getting universe name.
     std::string fileLine;
+    Parser parser;
     fileLine = fileReader.getLine();
-    Parser::processName(fileLine, parseLifeFileStatus, isSuccessGetLine, universeName);
+    parser.processName(fileLine, parsingErrors, isSuccessGetLine, universeName);
     // Getting birth and survival conditions.
     if (isSuccessGetLine) {
         fileLine = fileReader.getLine();
     }
-    Parser::processConditions(fileLine, parseLifeFileStatus, isSuccessGetLine, birthCondition, survivalCondition);
+    parser.processConditions(fileLine, parsingErrors, isSuccessGetLine, birthCondition, survivalCondition);
     // Getting the grid size.
     if (isSuccessGetLine) {
         fileLine = fileReader.getLine();
     }
-    Parser::processSize(fileLine, parseLifeFileStatus, isSuccessGetLine, column, row, grid1, grid2);
+    parser.processSize(fileLine, parsingErrors, isSuccessGetLine, column, row, grid);
     // Getting alive cells.
     while (true) {
         if (isSuccessGetLine) {
@@ -193,7 +198,7 @@ ParseFileStatus LifeGameParser::parseLifeFile(int argc, char **argv, bool *parse
         if (fileLine.empty()) {
             break;
         }
-        Parser::processCells(fileLine, parseLifeFileStatus, isSuccessGetLine, column, row, grid1);
+        parser.processCells(fileLine, parsingErrors, isSuccessGetLine, column, row, grid);
     }
     if (argc > 2) {
         filename = "out";
@@ -220,8 +225,8 @@ int LifeGameParser::getColumn() const {
     return column;
 }
 
-Grid LifeGameParser::getGrid1() const {
-    return grid1;
+Grid LifeGameParser::getGrid() const {
+    return grid;
 }
 
 std::string LifeGameParser::getUniverseName() const {

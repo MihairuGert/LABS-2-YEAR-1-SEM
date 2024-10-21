@@ -1,19 +1,20 @@
 #include "LifeGame.h"
 
-void LifeGame::runOffline(bool* parseLifeFileStatus) {
-    GameEngine gameEngine = GameEngine(grid1, birthCondition,survivalCondition);
-    grid1 = gameEngine.computeIterations(iterationsOffline);
+void LifeGame::runOffline() {
+    GameEngine gameEngine = GameEngine(grid, birthCondition,survivalCondition);
+    grid = gameEngine.computeIterations(iterationsOffline);
     filename += ".life";
     createLifeFile(filename);
 }
 
-void LifeGame::runOnline(bool* parseLifeFileStatus) {
-    GameEngine gameEngine = GameEngine(grid1, birthCondition,survivalCondition);
+void LifeGame::runOnline() {
+    GameEngine gameEngine = GameEngine(grid, birthCondition,survivalCondition);
+    Interface interface;
     GameStatus gameStatus = GameStatus::CONTINUE;
     while (gameStatus == GameStatus::CONTINUE) {
-        Interface::printInterface(grid1.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
-        Cmd cmd = Interface::getCommand();
-        gameStatus = processCmd(cmd, gameEngine, parseLifeFileStatus);
+        interface.printInterface(grid.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parsingErrors);
+        Cmd cmd = interface.getCommand();
+        gameStatus = processCmd(cmd, gameEngine);
     }
 }
 
@@ -30,14 +31,14 @@ void LifeGame::startGame() {
     // Offline mode.
     if (parseFileStatus == ParseFileStatus::OFFLINE) {
         // Reading name, rules, starting cells from file.
-        runOffline(parseLifeFileStatus);
+        runOffline();
         return;
     }
     // Start game with given rules.
-    runOnline(parseLifeFileStatus);
+    runOnline();
 }
 
-GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeFileStatus) {
+GameStatus LifeGame::processCmd(Cmd cmd, GameEngine& gameEngine) {
     std::string name = cmd.getName();
     std::string attributes = cmd.getAttributes();
     if (cmd.getName() == "exit") {
@@ -51,7 +52,7 @@ GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeF
         }
         int attributesInt = std::stoi(attributes);
         iterationNum += attributesInt;
-        grid1 = gameEngine.computeIterations(attributesInt);
+        grid = gameEngine.computeIterations(attributesInt);
     }
     else if (cmd.getName() == "auto") {
         attributes = attributes.substr(attributes.find('=') + 1, attributes.find('>') - attributes.find('=') + 1);
@@ -60,10 +61,11 @@ GameStatus LifeGame::processCmd(Cmd cmd, GameEngine gameEngine, bool* parseLifeF
             return GameStatus::CONTINUE;
         }
         int attributesInt = std::stoi(attributes);
+        Interface interface;
         for (int i = 0; i < attributesInt; ++i) {
             ++iterationNum;
-            grid1 = gameEngine.computeIterations();
-            Interface::printInterface(grid1.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parseLifeFileStatus);
+            grid = gameEngine.computeIterations();
+            interface.printInterface(grid.getGrid(), birthCondition, survivalCondition, universeName, iterationNum, parsingErrors);
         }
     }
     else if (cmd.getName() == "dump") {
@@ -101,9 +103,9 @@ void LifeGame::createLifeFile(const std::string& filename) {
     filePrinter.printInt(row);
     filePrinter.printString( "\n");
     // Writing alive cells.
-    for (int i = 0; i < grid1.getRow(); ++i) {
-        for (int j = 0; j < grid1.getColumn(); ++j) {
-            if (grid1.getElement(j, i)) {
+    for (int i = 0; i < grid.getRow(); ++i) {
+        for (int j = 0; j < grid.getColumn(); ++j) {
+            if (grid.getElement(j, i)) {
                 filePrinter.printInt(j);
                 filePrinter.printString(" ");
                 filePrinter.printInt(i);
@@ -115,7 +117,8 @@ void LifeGame::createLifeFile(const std::string& filename) {
 }
 
 void LifeGame::callHelp() {
-    Interface::printHelp();
+    Interface interface;
+    interface.printHelp();
     std::getchar();
 }
 
@@ -124,49 +127,50 @@ void LifeGame::generateUniverse() {
     int variant = rand() % 5;
     column = DEFAULT_SIZE;
     row = DEFAULT_SIZE;
-    grid1 = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
-    grid2 = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
+    grid = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
+    grid = Grid(DEFAULT_SIZE,DEFAULT_SIZE);
     birthCondition = {3};
     survivalCondition = {2,3};
+    Generator generator;
     switch (variant) {
         case 0:
             universeName = "Glider Gun";
-            Generator::createGliderGun(grid1);
+            generator.createGliderGun(grid);
             break;
         case 1:
             universeName = "Pulsar";
-            Generator::createPulsar(grid1);
+            generator.createPulsar(grid);
             break;
         case 2:
             universeName = "R-Pentomino";
-            Generator::createRPentamino(grid1);
+            generator.createRPentamino(grid);
             break;
         case 3:
             universeName = "Lightweight spaceship";
-            Generator::createLightWeightSS(grid1);
+            generator.createLightWeightSS(grid);
             break;
         case 4:
             universeName = "Block-Laying Switch Engine";
-            Generator::createBlockLayingSE(grid1);
+            generator.createBlockLayingSE(grid);
             break;
         default:
             throw 1;
     }
 }
 
-LifeGame::LifeGame(std::vector<int> birthCondition, std::vector<int> survivalCondition, int row, int column, Grid grid1,
+LifeGame::LifeGame(std::vector<int> birthCondition, std::vector<int> survivalCondition, int row, int column, Grid grid,
                    std::string universeName, ParseFileStatus parseFileStatus, bool* parseLifeFileStatus,
                    std::string filename, int iterationsOffline) {
     this->birthCondition = birthCondition;
     this->survivalCondition = survivalCondition;
     this->row = row;
     this->column = column;
-    this->grid1 = grid1;
+    this->grid = grid;
     this->universeName = universeName;
     this->parseFileStatus = parseFileStatus;
     this->filename = filename;
     this->iterationsOffline = iterationsOffline;
-    this->parseLifeFileStatus = parseLifeFileStatus;
+    this->parsingErrors = parseLifeFileStatus;
 }
 
 void Generator::createGliderGun(Grid &grid) {
