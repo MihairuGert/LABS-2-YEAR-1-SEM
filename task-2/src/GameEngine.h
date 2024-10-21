@@ -3,6 +3,8 @@
 #include <vector>
 #include <iostream>
 
+enum class ParseFileStatus {ONLINE = 0, OFFLINE, GENERATE, NO_FORMAT};
+
 class Grid {
 private:
     std::vector<std::vector<bool>> grid;
@@ -17,18 +19,18 @@ public:
     int getColumn() const;
     std::vector<std::vector<bool>> getGrid();
     void clear();
-    void createGrid();
 };
 
 class GameEngine {
 private:
-    static int countNeighbors(Grid& grid, int x, int y);
+    int countNeighbors(int x, int y);
     std::vector<int> birthCondition;
     std::vector<int> survivalCondition;
+    Grid grid;
     bool isSurvived(int num);
     bool isBorn(int num);
-    void computeNext(Grid& grid1, Grid& grid2);
+    void computeNext(Grid& grid);
 public:
-    GameEngine(const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition);
-    void computeIterations(Grid& grid1, Grid& grid2, int iterations = 1);
+    GameEngine(Grid grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition);
+    Grid computeIterations(int iterations = 1);
 };

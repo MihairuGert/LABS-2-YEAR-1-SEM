@@ -16,18 +16,14 @@ void Grid::clear() {
     }
 }
 
-void Grid::createGrid() {
+Grid::Grid(int row, int column) {
+    this->row = row;
+    this->column = column;
     grid.resize(row);
     for (int i = 0; i < row; ++i) {
         grid[i].resize(column);
     }
     clear();
-}
-
-Grid::Grid(int row, int column) {
-    this->row = row;
-    this->column = column;
-    createGrid();
 }
 
 Grid::Grid() {}
@@ -44,33 +40,35 @@ std::vector<std::vector<bool>> Grid::getGrid() {
     return grid;
 }
 
-void GameEngine::computeNext(Grid& grid1, Grid& grid2) {
-    grid2.clear();
-    for (int i = 0; i < grid1.getRow(); ++i) {
-        for (int j = 0; j < grid1.getColumn(); ++j) {
-            int neighborsNum = countNeighbors(grid1, j, i);
-            if (grid1.getElement(j, i)) {
+void GameEngine::computeNext(Grid& newGrid) {
+    newGrid.clear();
+    for (int i = 0; i < grid.getRow(); ++i) {
+        for (int j = 0; j < grid.getColumn(); ++j) {
+            int neighborsNum = countNeighbors(j, i);
+            if (grid.getElement(j, i)) {
                 if (isSurvived(neighborsNum)) {
-                    grid2.setElement(j, i, true);
+                    newGrid.setElement(j, i, true);
                 }
             }
             else {
                 if (isBorn(neighborsNum)) {
-                    grid2.setElement(j, i, true);
+                    newGrid.setElement(j, i, true);
                 }
             }
         }
     }
 }
 
-void GameEngine::computeIterations(Grid &grid1, Grid &grid2, int iterations) {
+Grid GameEngine::computeIterations(int iterations) {
+    Grid grid2 = grid;
     for (int i = 0; i < iterations; ++i) {
-        computeNext(grid1,grid2);
-        grid1 = grid2;
+        computeNext(grid2);
+        grid = grid2;
     }
+    return grid;
 }
 
-int GameEngine::countNeighbors(Grid& grid, int x, int y) {
+int GameEngine::countNeighbors(int x, int y) {
     int row = grid.getRow();
     int column = grid.getColumn();
     int sum = 0;
@@ -84,9 +82,10 @@ int GameEngine::countNeighbors(Grid& grid, int x, int y) {
     return sum;
 }
 
-GameEngine::GameEngine(const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition) {
+GameEngine::GameEngine(Grid grid, const std::vector<int>& birthCondition, const std::vector<int>& survivalCondition) {
     this->birthCondition = birthCondition;
     this->survivalCondition = survivalCondition;
+    this->grid = grid;
 }
 
 bool GameEngine::isSurvived(int num) {
