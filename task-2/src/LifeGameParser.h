@@ -17,7 +17,8 @@ public:
 class Parser {
 public:
     void processName(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine, std::string& universeName);
-    void processConditions(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine,
+    void processConditions(std::string& fileLine, bool *parsingErrors
+                           , bool& isSuccessGetLine,
                                   std::vector<int>& birthCondition, std::vector<int>& survivalCondition);
     void processSize(std::string& fileLine, bool *parsingErrors, bool& isSuccessGetLine,
                             int& column, int& row, Grid& grid);
