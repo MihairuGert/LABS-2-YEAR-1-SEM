@@ -4,15 +4,17 @@
 #include <fstream>
 #include <iostream>
 #include "ExceptionMSG.h"
+#include "FileWriter.h"
 
-const int BUFFER_SIZE = 5;
+class WAVHeader {
+protected:
+    const int BUFFER_SIZE = 4;
 
-class WAVHeaderParser {
     std::ifstream file;
     // The RIFF Chunk descriptor.
     std::string chunkId = "RIFF";
     std::string chunkSize = "0000";
-    std::string format = "WAFE";
+    std::string format = "WAVE";
     //
     std::string subchunk1Id = "fmt ";
     int subchunk1Size = 16;
@@ -29,6 +31,19 @@ class WAVHeaderParser {
     int headerSize = 0;
     int binaryStringToInt(char* string, int bytes, bool isBigEndian) const noexcept;
 public:
-    void parseWAV(std::string filename);
+    WAVHeader();
     int getHeaderSize() const noexcept;
+    int getSampleRate() const noexcept;
+};
+
+class WAVHeaderParser : public WAVHeader {
+public:
+    friend class WAVHeaderWriter;
+    void parseWAV(std::string filename);
+};
+
+class WAVHeaderWriter : public WAVHeader {
+public:
+    WAVHeaderWriter(const WAVHeaderParser& wavHeaderParser);
+    void writeWavHeader(std::ostream& out);
 };

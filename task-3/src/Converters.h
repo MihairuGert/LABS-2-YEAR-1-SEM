@@ -1,35 +1,49 @@
 #pragma once
 #include <string>
 #include <fstream>
+#include "FileWriter.h"
+#include "WAVHeader.h"
 
 class Converter {
+protected:
+    std::string inputFilename;
+    std::string outputFilename;
     int headerEnd;
+    int sampleRate;
+    std::ifstream in;
+    std::ofstream out;
 public:
-    virtual void convert(const std::ifstream& in, int start, int finish);
-    void setHeaderEnd(int headerEnd);
+    Converter(std::string& inputFilename, std::string& outputFilename);
+    virtual void convert(int start, int finish);
+    //virtual std::string getFileName() const noexcept;
+    virtual int getHeaderEnd() const noexcept;
 };
 
 class Muter : public Converter {
 public:
-    void convert(const std::ifstream& in, int start, int finish) override;
+    Muter(std::string& inputFilename, std::string& outputFilename);
+    void convert(int start, int finish) override;
+    //std::string getFileName() const noexcept override;
 };
 
 class Mixer : public Converter {
 public:
-    void convert(const std::ifstream& in, int start, int finish) override;
+    Mixer(std::string& inputFilename, std::string& outputFilename);
+    void convert(int start, int finish) override;
+    //std::string getFileName() const noexcept override;
 };
 
 class ConverterFactory {
 public:
-    virtual Converter* createConverter() = 0;
+    virtual Converter* createConverter(std::string& inputFilename, std::string& outputFilename) = 0;
 };
 
 class MuterFactory : public ConverterFactory {
 public:
-    Converter* createConverter() override;
+    Converter* createConverter(std::string& inputFilename, std::string& outputFilename) override;
 };
 
 class MixerFactory : public ConverterFactory {
 public:
-    Converter* createConverter() override;
+    Converter* createConverter(std::string& inputFilename, std::string& outputFilename) override;
 };

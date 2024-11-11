@@ -20,6 +20,7 @@ Cmd* ConfigParser::getCommand() {
         Cmd* cmd = new Cmd("MUTE", {begin, end}, -1);
         return cmd;
     }
+    // TODO: MIX
     else {
         throw ExceptionMSG("command_does_not_exists");
     }
