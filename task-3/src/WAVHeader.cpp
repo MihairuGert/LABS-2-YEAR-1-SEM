@@ -36,6 +36,10 @@ int WAVHeader::getSampleRate() const noexcept {
     return sampleRate;
 }
 
+int WAVHeader::getSubchunk2SizeRate() const noexcept {
+    return subchunk2Size;
+}
+
 void WAVHeaderParser::parseWAV(std::string filename) {
     file.open(filename, std::ios::binary);
     char buffer[BUFFER_SIZE + 1];
@@ -103,6 +107,7 @@ void WAVHeaderParser::parseWAV(std::string filename) {
     file.read(buffer, 4);
     subchunk2Size = binaryStringToInt(buffer, 4, true);
     headerSize = static_cast<int>(file.tellg());
+    file.close();
 }
 
 void WAVHeaderWriter::writeWavHeader(std::ostream &out) {

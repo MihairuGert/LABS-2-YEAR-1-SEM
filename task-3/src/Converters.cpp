@@ -2,6 +2,7 @@
 
 void Mixer::convert(int start, int finish) {
     Converter::convert(start, finish);
+    // TODO MIXER
 }
 
 Mixer::Mixer(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
@@ -11,12 +12,25 @@ Mixer::Mixer(std::string& inputFilename, std::string& outputFilename) : Converte
 //}
 
 void Muter::convert(int start, int finish) {
-    Converter::convert(start, finish);
+    if (!areFilesSame)
+        Converter::convert(start, finish);
     int startInBytes = start * sampleRate * 2;
     int finishInBytes = finish * sampleRate * 2;
     int fileSizeInBytes = headerEnd;
     FileWriter fileWriter;
     char buffer[2];
+    if (areFilesSame) {
+        while (fileSizeInBytes != subchunk2Size) {
+            if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
+                fileWriter.writeBinaryInFile(out,0,2);
+            }
+            else {
+                out.seekp(2, std::ios::cur);
+            }
+            fileSizeInBytes += 2;
+        }
+        return;
+    }
     while (!in.eof()) {
         if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
             fileWriter.writeBinaryInFile(out,0,2);
@@ -58,11 +72,17 @@ Converter::Converter(std::string& inputFilename, std::string& outputFilename) : 
     }
     headerEnd = wavHeaderParser.getHeaderSize();
     WAVHeaderWriter wavHeaderWriter = WAVHeaderWriter(wavHeaderParser);
-    in.open(inputFilename, std::ios::binary);
-    out.open(outputFilename, std::ios::binary);
+    areFilesSame = inputFilename == outputFilename;
+    if (!areFilesSame) {
+        in.open(inputFilename, std::ios::binary);
+    }
+    out.open(outputFilename, std::ios::binary | std::ios::in | std::ios::out);
+    if (!out.is_open()) {
+        out.open(outputFilename, std::ios::binary | std::ios::out);
+    }
     wavHeaderWriter.writeWavHeader(out);
+    subchunk2Size = wavHeaderWriter.getSubchunk2SizeRate();
     sampleRate = wavHeaderWriter.getSampleRate();
-
 }
 
 //std::string Converter::getFileName() const noexcept {
@@ -71,4 +91,10 @@ Converter::Converter(std::string& inputFilename, std::string& outputFilename) : 
 
 int Converter::getHeaderEnd() const noexcept {
     return headerEnd;
+}
+
+Converter::~Converter() {
+    if (!areFilesSame)
+        in.close();
+    out.close();
 }

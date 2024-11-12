@@ -10,10 +10,13 @@ protected:
     std::string outputFilename;
     int headerEnd;
     int sampleRate;
+    int subchunk2Size;
     std::ifstream in;
-    std::ofstream out;
+    std::fstream out;
+    bool areFilesSame;
 public:
     Converter(std::string& inputFilename, std::string& outputFilename);
+    ~Converter();
     virtual void convert(int start, int finish);
     //virtual std::string getFileName() const noexcept;
     virtual int getHeaderEnd() const noexcept;
