@@ -14,6 +14,7 @@ protected:
     std::ifstream in;
     std::fstream out;
     bool areFilesSame;
+    bool canBeMixed = true;
 public:
     Converter(std::string& inputFilename, std::string& outputFilename);
     ~Converter();

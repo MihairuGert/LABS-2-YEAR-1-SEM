@@ -22,8 +22,9 @@ Cmd* ConfigParser::getCommand() {
     }
     if (commandName == "mix") {
         int begin;
-        int inputIndex;
-        istrstream >> inputIndex >> begin;
+        std::string input;
+        istrstream >> input >> begin;
+        int inputIndex = stoi(input.substr(1));
         if (begin < 0) {
             throw ExceptionMSG("incorrect_time_interval");
         }
@@ -44,4 +45,8 @@ std::string Cmd::getCmdName() const noexcept {
 
 std::vector<int> Cmd::getInterval() const noexcept {
     return interval;
+}
+
+int Cmd::getInputIndex() const noexcept {
+    return inputIndex;
 }

@@ -1,15 +1,41 @@
 #include "Converters.h"
 
-void Mixer::convert(int start, int finish) {
-    Converter::convert(start, finish);
-    // TODO MIXER
-}
-
 Mixer::Mixer(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
 
 //std::string Mixer::getFileName() const noexcept {
 //    return Converter::getFileName();
 //}
+
+void Mixer::convert(int start, int finish) {
+    if (areFilesSame)
+        return;
+    if (!canBeMixed)
+        throw ExceptionMSG("cannot_be_mixed");
+    Converter::convert(start, finish);
+    int startInBytes = start * sampleRate * 2;
+    int fileSizeInBytes = headerEnd;
+    char buffer1[2];
+    char buffer2[2];
+    FileWriter fileWriter;
+    //std::cout << out.tellp() << ' ' << out.tellg() << ' ' << in.tellg() << '\n';
+    while (fileSizeInBytes != subchunk2Size) {
+        if (fileSizeInBytes >= startInBytes) {
+            in.read(buffer1, 2);
+            out.read(buffer2, 2);
+            char bufferResult[2];
+            // From math: sums below cannot get more than 256.
+            bufferResult[0] = static_cast<char>(((buffer1[0] + buffer2[0]) / 2));
+            bufferResult[1] = static_cast<char>(((buffer1[1] + buffer2[1]) / 2));
+            out.write(bufferResult, 2);
+
+        }
+        else {
+            in.seekg(2, std::ios::cur);
+            out.seekp(2, std::ios::cur);
+        }
+        fileSizeInBytes += 2;
+    }
+}
 
 void Muter::convert(int start, int finish) {
     if (!areFilesSame)
@@ -79,8 +105,11 @@ Converter::Converter(std::string& inputFilename, std::string& outputFilename) : 
     out.open(outputFilename, std::ios::binary | std::ios::in | std::ios::out);
     if (!out.is_open()) {
         out.open(outputFilename, std::ios::binary | std::ios::out);
+        canBeMixed = false;
     }
     wavHeaderWriter.writeWavHeader(out);
+    // attention
+    out.seekg(headerEnd, std::ios::beg);
     subchunk2Size = wavHeaderWriter.getSubchunk2SizeRate();
     sampleRate = wavHeaderWriter.getSampleRate();
 }

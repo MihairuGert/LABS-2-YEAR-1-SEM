@@ -14,6 +14,7 @@ public:
     Cmd(std::string name, std::vector<int> interval, int inputIndex) : cmdName(name), interval(interval), inputIndex(inputIndex) {};
     std::string getCmdName() const noexcept;
     std::vector<int> getInterval() const noexcept;
+    int getInputIndex() const noexcept;
 };
 
 class ConfigParser {

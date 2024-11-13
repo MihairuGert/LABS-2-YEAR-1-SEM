@@ -15,6 +15,13 @@ void SoundProcessor::runProcess() {
             delete(muter);
             previousFilename = outName;
         }
+        if (cmd->getCmdName() == "MIX") {
+            MixerFactory mixerFactory;
+            Converter* mixer = mixerFactory.createConverter(inFilenames[cmd->getInputIndex()], outName);
+            mixer->convert(cmd->getInterval()[0], -1);
+            delete(mixer);
+            previousFilename = outName;
+        }
     }
     out.close();
     config.close();
