@@ -7,12 +7,16 @@
 class Converter {
 protected:
     std::string inputFilename;
-    std::string outputFilename;
-    int headerEnd;
-    int sampleRate;
-    int subchunk2Size;
     std::ifstream in;
+    int inHeaderEnd;
+    int inSubchunk2Size;
+
+    std::string outputFilename;
     std::fstream out;
+    int outHeaderEnd;
+    int outSubchunk2Size;
+
+    int sampleRate;
     bool areFilesSame;
     bool canBeMixed = true;
 public:
@@ -20,7 +24,6 @@ public:
     ~Converter();
     virtual void convert(int start, int finish);
     //virtual std::string getFileName() const noexcept;
-    virtual int getHeaderEnd() const noexcept;
 };
 
 class Muter : public Converter {

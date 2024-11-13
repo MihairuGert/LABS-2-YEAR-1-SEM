@@ -34,7 +34,7 @@ public:
     WAVHeader();
     int getHeaderSize() const noexcept;
     int getSampleRate() const noexcept;
-    int getSubchunk2SizeRate() const noexcept;
+    int getSubchunk2Size() const noexcept;
 };
 
 class WAVHeaderParser : public WAVHeader {

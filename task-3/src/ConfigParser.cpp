@@ -3,7 +3,7 @@
 Cmd* ConfigParser::getCommand() {
     std::string line;
     std::getline(*in, line, '\n');
-    if (line[0] == '#') {
+    if (line[0] == '#' || line.empty()) {
         Cmd* cmd = new Cmd("COMMENT", {}, -1);
         return cmd;
     }
@@ -35,7 +35,7 @@ Cmd* ConfigParser::getCommand() {
         return cmd;
     }
     else {
-        throw ExceptionMSG("command_does_not_exists");
+        throw ExceptionMSG("command_does_not_exist");
     }
 }
 

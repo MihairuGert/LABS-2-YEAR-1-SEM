@@ -2,10 +2,6 @@
 
 Mixer::Mixer(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
 
-//std::string Mixer::getFileName() const noexcept {
-//    return Converter::getFileName();
-//}
-
 void Mixer::convert(int start, int finish) {
     if (areFilesSame)
         return;
@@ -13,12 +9,15 @@ void Mixer::convert(int start, int finish) {
         throw ExceptionMSG("cannot_be_mixed");
     Converter::convert(start, finish);
     int startInBytes = start * sampleRate * 2;
-    int fileSizeInBytes = headerEnd;
+    int fileSizeInBytes = outHeaderEnd;
     char buffer1[2];
     char buffer2[2];
-    FileWriter fileWriter;
-    //std::cout << out.tellp() << ' ' << out.tellg() << ' ' << in.tellg() << '\n';
-    while (fileSizeInBytes != subchunk2Size) {
+    in.seekg(inHeaderEnd, std::ios::beg);
+    out.seekg(outHeaderEnd, std::ios::beg);
+    while (fileSizeInBytes != outSubchunk2Size) {
+        if (fileSizeInBytes > inSubchunk2Size) {
+            return;
+        }
         if (fileSizeInBytes >= startInBytes) {
             in.read(buffer1, 2);
             out.read(buffer2, 2);
@@ -26,11 +25,10 @@ void Mixer::convert(int start, int finish) {
             // From math: sums below cannot get more than 256.
             bufferResult[0] = static_cast<char>(((buffer1[0] + buffer2[0]) / 2));
             bufferResult[1] = static_cast<char>(((buffer1[1] + buffer2[1]) / 2));
+            out.seekp(-2, std::ios::cur);
             out.write(bufferResult, 2);
-
         }
         else {
-            in.seekg(2, std::ios::cur);
             out.seekp(2, std::ios::cur);
         }
         fileSizeInBytes += 2;
@@ -42,11 +40,11 @@ void Muter::convert(int start, int finish) {
         Converter::convert(start, finish);
     int startInBytes = start * sampleRate * 2;
     int finishInBytes = finish * sampleRate * 2;
-    int fileSizeInBytes = headerEnd;
+    int fileSizeInBytes = inHeaderEnd;
     FileWriter fileWriter;
     char buffer[2];
     if (areFilesSame) {
-        while (fileSizeInBytes != subchunk2Size) {
+        while (fileSizeInBytes != inSubchunk2Size) {
             if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
                 fileWriter.writeBinaryInFile(out,0,2);
             }
@@ -72,10 +70,6 @@ void Muter::convert(int start, int finish) {
 
 Muter::Muter(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
 
-//std::string Muter::getFileName() const noexcept {
-//    return Converter::getFileName();
-//}
-
 Converter* MuterFactory::createConverter(std::string& inputFilename, std::string& outputFilename) {
     return new Muter(inputFilename, outputFilename);
 }
@@ -85,41 +79,51 @@ Converter* MixerFactory::createConverter(std::string& inputFilename, std::string
 }
 
 void Converter::convert(int start, int finish) {
-    in.seekg(headerEnd, std::ios::beg);
+    in.seekg(inHeaderEnd, std::ios::beg);
 }
 
 Converter::Converter(std::string& inputFilename, std::string& outputFilename) : inputFilename(inputFilename), outputFilename(outputFilename) {
-    WAVHeaderParser wavHeaderParser;
+    WAVHeaderParser inWavHeaderParser;
     try {
-        wavHeaderParser.parseWAV(inputFilename);
+        inWavHeaderParser.parseWAV(inputFilename);
     }
     catch (const char* error_message) {
         std::cerr << error_message << '\n';
     }
-    headerEnd = wavHeaderParser.getHeaderSize();
-    WAVHeaderWriter wavHeaderWriter = WAVHeaderWriter(wavHeaderParser);
+    inHeaderEnd = inWavHeaderParser.getHeaderSize();
+
     areFilesSame = inputFilename == outputFilename;
     if (!areFilesSame) {
         in.open(inputFilename, std::ios::binary);
     }
     out.open(outputFilename, std::ios::binary | std::ios::in | std::ios::out);
-    if (!out.is_open()) {
+
+    bool wasOutOpen = out.is_open() && out.peek() != -1;
+    WAVHeaderParser outWavHeaderParser;
+    if (wasOutOpen) {
+        try {
+            outWavHeaderParser.parseWAV(outputFilename);
+        }
+        catch (const char *error_message) {
+            std::cerr << error_message << '\n';
+        }
+        outHeaderEnd = outWavHeaderParser.getHeaderSize();
+    }
+    else {
         out.open(outputFilename, std::ios::binary | std::ios::out);
         canBeMixed = false;
     }
-    wavHeaderWriter.writeWavHeader(out);
+
+    if (!wasOutOpen) {
+        WAVHeaderWriter wavHeaderWriter = WAVHeaderWriter(inWavHeaderParser);
+        wavHeaderWriter.writeWavHeader(out);
+    }
     // attention
-    out.seekg(headerEnd, std::ios::beg);
-    subchunk2Size = wavHeaderWriter.getSubchunk2SizeRate();
-    sampleRate = wavHeaderWriter.getSampleRate();
-}
-
-//std::string Converter::getFileName() const noexcept {
-//    return filename;
-//}
-
-int Converter::getHeaderEnd() const noexcept {
-    return headerEnd;
+    out.seekg(inHeaderEnd, std::ios::beg);
+    inSubchunk2Size = inWavHeaderParser.getSubchunk2Size();
+    if (wasOutOpen)
+        outSubchunk2Size = outWavHeaderParser.getSubchunk2Size();
+    sampleRate = inWavHeaderParser.getSampleRate();
 }
 
 Converter::~Converter() {

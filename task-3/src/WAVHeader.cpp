@@ -36,7 +36,7 @@ int WAVHeader::getSampleRate() const noexcept {
     return sampleRate;
 }
 
-int WAVHeader::getSubchunk2SizeRate() const noexcept {
+int WAVHeader::getSubchunk2Size() const noexcept {
     return subchunk2Size;
 }
 

@@ -5,6 +5,7 @@ void SoundProcessor::runProcess() {
     ConfigParser configParser = ConfigParser(&config);
     std::string previousFilename = inFilenames[1];
     std::string outName = inFilenames[0];
+    remove(outName.c_str());
     while(!config.eof()) {
         Cmd* cmd = configParser.getCommand();
         // TODO ADD FACTORY HERE
@@ -13,16 +14,21 @@ void SoundProcessor::runProcess() {
             Converter* muter = muterFactory.createConverter(previousFilename, outName);
             muter->convert(cmd->getInterval()[0], cmd->getInterval()[1]);
             delete(muter);
-            previousFilename = outName;
         }
-        if (cmd->getCmdName() == "MIX") {
+        else if (cmd->getCmdName() == "MIX") {
             MixerFactory mixerFactory;
             Converter* mixer = mixerFactory.createConverter(inFilenames[cmd->getInputIndex()], outName);
             mixer->convert(cmd->getInterval()[0], -1);
             delete(mixer);
-            previousFilename = outName;
         }
+        if (cmd->getCmdName() != "COMMENT")
+            previousFilename = outName;
     }
-    out.close();
     config.close();
 }
+
+//void SoundProcessor::convert(ConverterFactory converterFactory, int start, int finish, std::string inFilename,
+//                             std::string outFilename) {
+//
+//
+//}
