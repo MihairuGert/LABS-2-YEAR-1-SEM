@@ -9,9 +9,9 @@
 class Cmd {
     std::string cmdName;
     std::vector<int> interval;
-    int outNumber;
+    int inputIndex;
 public:
-    Cmd(std::string name, std::vector<int> interval, int outNum) : cmdName(name), interval(interval), outNumber(outNum) {};
+    Cmd(std::string name, std::vector<int> interval, int inputIndex) : cmdName(name), interval(interval), inputIndex(inputIndex) {};
     std::string getCmdName() const noexcept;
     std::vector<int> getInterval() const noexcept;
 };

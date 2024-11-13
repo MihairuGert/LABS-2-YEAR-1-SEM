@@ -15,12 +15,24 @@ Cmd* ConfigParser::getCommand() {
         int end;
         istrstream >> begin >> end;
         if (begin < 0 || end < 0) {
-            throw ExceptionMSG("wrong_time_interval");
+            throw ExceptionMSG("incorrect_time_interval");
         }
         Cmd* cmd = new Cmd("MUTE", {begin, end}, -1);
         return cmd;
     }
-    // TODO: MIX
+    if (commandName == "mix") {
+        int begin;
+        int inputIndex;
+        istrstream >> inputIndex >> begin;
+        if (begin < 0) {
+            throw ExceptionMSG("incorrect_time_interval");
+        }
+        if (inputIndex < 1) {
+            throw ExceptionMSG("incorrect_input_file_index");
+        }
+        Cmd* cmd = new Cmd("MIX", {begin, -1}, inputIndex);
+        return cmd;
+    }
     else {
         throw ExceptionMSG("command_does_not_exists");
     }
