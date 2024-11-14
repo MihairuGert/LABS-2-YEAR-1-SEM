@@ -1,5 +1,4 @@
 #pragma once
-
 #include <fstream>
 #include <iostream>
 #include "WAVHeader.h"
@@ -27,7 +26,6 @@ public:
     char* getSecondFromIn();
     char* getSecondFromOut();
     void writeString(char* buffer, int offset);
-    void writeInt(int value, int bytes, int offset);
     void moveWriterPointer(int offset);
     void moveReaderPointer(int offset);
     void initialize();

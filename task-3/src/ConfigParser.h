@@ -9,12 +9,16 @@
 class Cmd {
     std::string cmdName;
     std::vector<int> interval;
-    int inputIndex;
+    int inputIndex{};
+    double doubleArg{};
 public:
+    Cmd(std::string name, std::vector<int> interval) : cmdName(name), interval(interval) {};
     Cmd(std::string name, std::vector<int> interval, int inputIndex) : cmdName(name), interval(interval), inputIndex(inputIndex) {};
-    std::string getCmdName() const noexcept;
-    std::vector<int> getInterval() const noexcept;
-    int getInputIndex() const noexcept;
+    Cmd(std::string name, std::vector<int> interval, int inputIndex, double doubleArg) : cmdName(name), interval(interval), inputIndex(inputIndex), doubleArg(doubleArg) {};
+    std::string getCmdName() const;
+    std::vector<int> getInterval() const;
+    int getInputIndex() const;
+    double getCoef() const;
 };
 
 class ConfigParser {

@@ -67,11 +67,6 @@ void FileHandler::writeString(char *buffer, int offset) {
     out.write(buffer, second);
 }
 
-void FileHandler::writeInt(int value, int bytes, int offset) {
-    out.seekp(offset, std::ios::cur);
-    writeBinaryInFile(0, bytes);
-}
-
 int FileHandler::getSampleRate() const {
     return sampleRate;
 }

@@ -4,7 +4,7 @@ Cmd* ConfigParser::getCommand() {
     std::string line;
     std::getline(*in, line, '\n');
     if (line[0] == '#' || line.empty()) {
-        Cmd* cmd = new Cmd("COMMENT", {}, -1);
+        Cmd* cmd = new Cmd("COMMENT", {});
         return cmd;
     }
     std::istringstream istrstream(line);
@@ -17,7 +17,21 @@ Cmd* ConfigParser::getCommand() {
         if (begin < 0 || end < 0) {
             throw ExceptionMSG("incorrect_time_interval");
         }
-        Cmd* cmd = new Cmd("MUTE", {begin, end}, -1);
+        Cmd* cmd = new Cmd("MUTE", {begin, end});
+        return cmd;
+    }
+    if (commandName == "boost") {
+        int begin;
+        int end;
+        double coef;
+        istrstream >> begin >> end >> coef;
+        if (begin < 0 || end < 0) {
+            throw ExceptionMSG("incorrect_time_interval");
+        }
+        if (coef <= 0) {
+            throw ExceptionMSG("incorrect_boost_coef");
+        }
+        Cmd* cmd = new Cmd("BOOST", {begin, end}, -1, coef);
         return cmd;
     }
     if (commandName == "mix") {
@@ -31,7 +45,7 @@ Cmd* ConfigParser::getCommand() {
         if (inputIndex < 1) {
             throw ExceptionMSG("incorrect_input_file_index");
         }
-        Cmd* cmd = new Cmd("MIX", {begin, -1}, inputIndex);
+        Cmd* cmd = new Cmd("MIX", {begin}, inputIndex);
         return cmd;
     }
     else {
@@ -39,14 +53,18 @@ Cmd* ConfigParser::getCommand() {
     }
 }
 
-std::string Cmd::getCmdName() const noexcept {
+std::string Cmd::getCmdName() const {
     return cmdName;
 }
 
-std::vector<int> Cmd::getInterval() const noexcept {
+std::vector<int> Cmd::getInterval() const {
     return interval;
 }
 
-int Cmd::getInputIndex() const noexcept {
+int Cmd::getInputIndex() const {
     return inputIndex;
+}
+
+double Cmd::getCoef() const {
+    return doubleArg;
 }
