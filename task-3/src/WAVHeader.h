@@ -4,7 +4,6 @@
 #include <fstream>
 #include <iostream>
 #include "ExceptionMSG.h"
-#include "FileWriter.h"
 
 class WAVHeader {
 protected:
@@ -44,6 +43,7 @@ public:
 };
 
 class WAVHeaderWriter : public WAVHeader {
+    void writeBinaryInFile(std::ostream &out, int value, int bytes);
 public:
     WAVHeaderWriter(const WAVHeaderParser& wavHeaderParser);
     void writeWavHeader(std::ostream& out);

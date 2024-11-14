@@ -6,6 +6,7 @@
 #include "ConfigParser.h"
 #include "WAVHeader.h"
 #include "Converters.h"
+#include "FileHandler.h"
 
 class SoundProcessor {
     std::ifstream config;

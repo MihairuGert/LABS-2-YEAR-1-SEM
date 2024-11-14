@@ -1,24 +1,12 @@
 #pragma once
 #include <string>
 #include <fstream>
-#include "FileWriter.h"
 #include "WAVHeader.h"
+#include "FileHandler.h"
 
 class Converter {
 protected:
-    std::string inputFilename;
-    std::ifstream in;
-    int inHeaderEnd;
-    int inSubchunk2Size;
-
-    std::string outputFilename;
-    std::fstream out;
-    int outHeaderEnd;
-    int outSubchunk2Size;
-
-    int sampleRate;
-    bool areFilesSame;
-    bool canBeMixed = true;
+    FileHandler* fileHandler;
 public:
     Converter(std::string& inputFilename, std::string& outputFilename);
     ~Converter();

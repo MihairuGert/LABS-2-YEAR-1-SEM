@@ -110,20 +110,23 @@ void WAVHeaderParser::parseWAV(std::string filename) {
     file.close();
 }
 
+void WAVHeaderWriter::writeBinaryInFile(std::ostream &out, int value, int bytes) {
+    out.write(reinterpret_cast<const char*>(&value), bytes);
+}
+
 void WAVHeaderWriter::writeWavHeader(std::ostream &out) {
     out << chunkId;
     out << chunkSize;
     out << format;
     //
     out << subchunk1Id;
-    FileWriter fileWriter;
-    fileWriter.writeBinaryInFile(out, subchunk1Size, 4);
-    fileWriter.writeBinaryInFile(out, audioFormat, 2);
-    fileWriter.writeBinaryInFile(out, numChannels, 2);
-    fileWriter.writeBinaryInFile(out, sampleRate, 4);
-    fileWriter.writeBinaryInFile(out, byteRate, 4);
-    fileWriter.writeBinaryInFile(out, blockAlign, 2);
-    fileWriter.writeBinaryInFile(out, bitsPerSample, 2);
+    writeBinaryInFile(out, subchunk1Size, 4);
+    writeBinaryInFile(out, audioFormat, 2);
+    writeBinaryInFile(out, numChannels, 2);
+    writeBinaryInFile(out, sampleRate, 4);
+    writeBinaryInFile(out, byteRate, 4);
+    writeBinaryInFile(out, blockAlign, 2);
+    writeBinaryInFile(out, bitsPerSample, 2);
     out << subchunk2Id;
-    fileWriter.writeBinaryInFile(out, subchunk2Size, 4);
+    writeBinaryInFile(out, subchunk2Size, 4);
 }
