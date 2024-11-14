@@ -1,5 +1,12 @@
 #include "SoundProcessor.h"
 
+// TODO
+// TODO PROBABLY CHANGE CONVERTER LOGIC SHOULD RETURN SAMPLE. I THINK WE NEED TO ADD ANOTHER CLASS THAT WILL UNITE FILEHANDLER AND CONVERTER
+// TODO -h IN CONSOLE
+// TODO CHECK FOR ALL EXCEPTIONS AND MAKE STD::ERR
+// TODO GTESTS
+// TODO DYNAMIC HELPER PROBABLY SHOULD PRINT WHEN -h
+
 void SoundProcessor::runProcess() {
     config.open(configFilename);
     ConfigParser configParser = ConfigParser(&config);
