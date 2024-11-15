@@ -1,13 +1,13 @@
-#include "Converters.h"
+#include "ConverterHelpers.h"
 
-Mixer::Mixer(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
+MixerHelper::MixerHelper(std::string& inputFilename, std::string& outputFilename) : ConverterHelper(inputFilename, outputFilename) {}
 
-void Mixer::convert(int start, int finish, double coef) {
+void MixerHelper::convert(int start, int finish, double coef) {
     if (fileHandler->isAreFilesSame())
         return;
     if (!fileHandler->isCanBeMixed())
         throw ExceptionMSG("cannot_be_mixed");
-    Converter::convert(start, finish, coef);
+    ConverterHelper::convert(start, finish, coef);
     int startInBytes = start * fileHandler->getSampleRate() * 2;
     fileHandler->initialize();
     int fileSizeInBytes = fileHandler->getOutStartOffset();
@@ -32,7 +32,7 @@ void Mixer::convert(int start, int finish, double coef) {
     }
 }
 
-void Muter::convert(int start, int finish, double coef) {
+void MuterHelper::convert(int start, int finish, double coef) {
     int startInBytes = start * fileHandler->getSampleRate() * 2;
     int finishInBytes = finish * fileHandler->getSampleRate() * 2;
     int fileSizeInBytes = fileHandler->getInStartOffset();
@@ -72,35 +72,35 @@ void Muter::convert(int start, int finish, double coef) {
     }
 }
 
-Muter::Muter(std::string& inputFilename, std::string& outputFilename) : Converter(inputFilename, outputFilename) {}
+MuterHelper::MuterHelper(std::string& inputFilename, std::string& outputFilename) : ConverterHelper(inputFilename, outputFilename) {}
 
-Booster::Booster(std::string &inputFilename, std::string &outputFilename, double coef) : Converter(inputFilename, outputFilename) {}
+BoosterHelper::BoosterHelper(std::string &inputFilename, std::string &outputFilename, double coef) : ConverterHelper(inputFilename, outputFilename) {}
 
-Converter* MuterFactory::createConverter(std::string& inputFilename, std::string& outputFilename) {
-    return new Muter(inputFilename, outputFilename);
+ConverterHelper* MuterHelperFactory::createConverter(std::string& inputFilename, std::string& outputFilename) {
+    return new MuterHelper(inputFilename, outputFilename);
 }
 
-Converter* MixerFactory::createConverter(std::string& inputFilename, std::string& outputFilename) {
-    return new Mixer(inputFilename, outputFilename);
+ConverterHelper* MixerHelperFactory::createConverter(std::string& inputFilename, std::string& outputFilename) {
+    return new MixerHelper(inputFilename, outputFilename);
 }
 
-Converter *BoosterFactory::createConverter(std::string &inputFilename, std::string &outputFilename) {
-    return new Booster(inputFilename, outputFilename);
+ConverterHelper *BoosterHelperFactory::createConverter(std::string &inputFilename, std::string &outputFilename) {
+    return new BoosterHelper(inputFilename, outputFilename);
 }
 
-void Converter::convert(int start, int finish, double coef) {}
+void ConverterHelper::convert(int start, int finish, double coef) {}
 
-Converter::Converter(std::string& inputFilename, std::string& outputFilename) {
+ConverterHelper::ConverterHelper(std::string& inputFilename, std::string& outputFilename) {
     fileHandler = new FileHandler(inputFilename, outputFilename);
 }
 
-Converter::~Converter() {
+ConverterHelper::~ConverterHelper() {
     delete(fileHandler);
 }
 
-Booster::Booster(std::string &inputFilename, std::string &outputFilename) : Converter(inputFilename, outputFilename) {}
+BoosterHelper::BoosterHelper(std::string &inputFilename, std::string &outputFilename) : ConverterHelper(inputFilename, outputFilename) {}
 
-void Booster::convert(int start, int finish, double coef) {
+void BoosterHelper::convert(int start, int finish, double coef) {
     int startInBytes = start * fileHandler->getSampleRate() * 2;
     int finishInBytes = finish * fileHandler->getSampleRate() * 2;
     int fileSizeInBytes = fileHandler->getInStartOffset();
