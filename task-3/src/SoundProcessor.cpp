@@ -1,7 +1,5 @@
 #include "SoundProcessor.h"
 
-// TODO GTESTS
-
 void SoundProcessor::runProcess() {
     config.open(configFilename);
     ConfigParser configParser = ConfigParser(&config);
