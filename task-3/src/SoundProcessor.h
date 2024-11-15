@@ -14,8 +14,12 @@ class SoundProcessor {
     std::string configFilename;
     std::vector<std::string> inFilenames;
     void convert(ConverterHelperFactory& converterFactory, int start, int finish, double boostCoef, std::string& inFilename, std::string& outFilename);
+    void prepareOutput(std::string outName, std::string firstInput);
+    std::vector<Converter*> getAvailableConvertersList();
 public:
+    SoundProcessor();
     SoundProcessor(std::string configFilename, std::vector<std::string> inFilenames) : configFilename(std::move(configFilename)), inFilenames(std::move(inFilenames)) {};
     void runProcess();
+    void printHelp();
 };
 

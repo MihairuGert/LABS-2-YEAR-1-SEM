@@ -1,10 +1,15 @@
 #include "ConsoleParser.h"
 
-void ConsoleParser::parseConsole(int argc, char **argv)  {
-    if (argc <= 1) {
+RunMode ConsoleParser::parseConsole(int argc, char **argv)  {
+    if (argc < 1) {
+        std::cerr << "No console command";
         throw ExceptionMSG("no_console_command");
     }
+    if (!strcmp(argv[1], "-h")) {
+        return RunMode::HELP;
+    }
     if (argc <= 4) {
+        std::cerr << "Not enough files to run";
         throw ExceptionMSG("not_enough_files_to_run");
     }
     for (int i = 1; i < argc; ++i) {
@@ -14,12 +19,16 @@ void ConsoleParser::parseConsole(int argc, char **argv)  {
             continue;
         }
         else if (i == 1 && strcmp(argv[i], "-c") != 0) {
+            std::cerr << "Incorrect console command format";
             throw ExceptionMSG("incorrect_console_command_format");
         }
-        else if (i > 2 && !isWav(argv[i]))
+        else if (i > 2 && !isWav(argv[i])) {
+            std::cerr << "Incorrect audio format. Must be .wav";
             throw ExceptionMSG("not_wav");
+        }
         inputFilenames.emplace_back(argv[i]);
     }
+    return RunMode::RUN;
 }
 
 std::string ConsoleParser::getConfigName() const noexcept {

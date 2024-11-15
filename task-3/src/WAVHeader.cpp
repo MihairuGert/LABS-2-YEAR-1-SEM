@@ -47,39 +47,51 @@ void WAVHeaderParser::parseWAV(std::string filename) {
 
     file.read(buffer, 4);
     chunkId = buffer;
-    if (strcmp(buffer, "RIFF") != 0)
+    if (strcmp(buffer, "RIFF") != 0) {
+        std::cerr << "Corrupted wave file";
         throw ExceptionMSG("incorrect_chunk_id");
+    }
 
     file.read(buffer, 4);
     chunkSize = buffer;
 
     file.read(buffer, 4);
     format = buffer;
-    if (strcmp(buffer, "WAVE") != 0)
+    if (strcmp(buffer, "WAVE") != 0) {
+        std::cerr << "Corrupted wave file";
         throw ExceptionMSG("incorrect_format");
+    }
 
     file.read(buffer, 4);
     subchunk1Id = buffer;
 
     file.read(buffer, 4);
     subchunk1Size = binaryStringToInt(buffer, 4, true);
-    if (subchunk1Size != 16)
+    if (subchunk1Size != 16) {
+        std::cerr << "Corrupted wave file";
         throw ExceptionMSG("not_pcm_format");
+    }
 
     file.read(buffer, 2);
     audioFormat = binaryStringToInt(buffer, 2, true);
-    if (audioFormat != 1)
+    if (audioFormat != 1) {
+        std::cerr << "Only files without compression are supported";
         throw ExceptionMSG("must_be_no_compress");
+    }
 
     file.read(buffer, 2);
     numChannels = binaryStringToInt(buffer, 2, true);
-    if (numChannels != 1)
+    if (numChannels != 1) {
+        std::cerr << "Only mono-channel files are supported";
         throw ExceptionMSG("must_be_mono_channel");
+    }
 
     file.read(buffer, 4);
     sampleRate = binaryStringToInt(buffer, 4, true);
-    if (sampleRate != 44100)
+    if (sampleRate != 44100) {
+        std::cerr << "Only files with 44100 hz sample rate are supported";
         throw ExceptionMSG("must_be_44100_hz");
+    }
 
     file.read(buffer, 4);
     byteRate = binaryStringToInt(buffer, 4, true);
@@ -89,8 +101,10 @@ void WAVHeaderParser::parseWAV(std::string filename) {
 
     file.read(buffer, 2);
     bitsPerSample = binaryStringToInt(buffer, 2, true);
-    if (bitsPerSample != 16)
+    if (bitsPerSample != 16) {
+        std::cerr << "Only files with 16 bits per sample are supported";
         throw ExceptionMSG("must_be_16_bits_per_sample");
+    }
 
     file.read(buffer, 4);
     subchunk2Id = buffer;
@@ -101,8 +115,10 @@ void WAVHeaderParser::parseWAV(std::string filename) {
         file.seekg(subchunk2Size, std::ios::cur);
         file.read(buffer, 4);
     }
-    if (strcmp(buffer, "data") != 0)
+    if (strcmp(buffer, "data") != 0) {
+        std::cerr << "Corrupted wave file";
         throw ExceptionMSG("corrupted_file");
+    }
     subchunk2Id = buffer;
     file.read(buffer, 4);
     subchunk2Size = binaryStringToInt(buffer, 4, true);

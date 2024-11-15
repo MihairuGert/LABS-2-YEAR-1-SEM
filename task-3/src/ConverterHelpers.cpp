@@ -3,24 +3,19 @@
 MixerHelper::MixerHelper(std::string& inputFilename, std::string& outputFilename) : ConverterHelper(inputFilename, outputFilename) {}
 
 void MixerHelper::convert(int start, int finish, double coef) {
-    if (fileHandler->isAreFilesSame())
-        return;
-    if (!fileHandler->isCanBeMixed())
-        throw ExceptionMSG("cannot_be_mixed");
     ConverterHelper::convert(start, finish, coef);
     int startInBytes = start * fileHandler->getSampleRate() * 2;
     fileHandler->initialize();
     int fileSizeInBytes = fileHandler->getOutStartOffset();
-    while (fileSizeInBytes != fileHandler->getOutSize()) {
+    MixerFactory mixerFactory;
+    while (fileSizeInBytes <= fileHandler->getOutSize()) {
         if (fileSizeInBytes > fileHandler->getInSize()) {
             return;
         }
         if (fileSizeInBytes >= startInBytes) {
             char* bufferIn = fileHandler->getSecondFromIn();
             char* bufferOut = fileHandler->getSecondFromOut();
-            for (int i = 0; i < second; ++i) {
-                bufferOut[i] = static_cast<char>(((bufferIn[i] + bufferOut[i]) / 2));
-            }
+            bufferOut = callConverter(mixerFactory, bufferOut, bufferIn);
             fileHandler->writeString(bufferOut, -second);
             delete(bufferIn);
             delete(bufferOut);
@@ -37,13 +32,12 @@ void MuterHelper::convert(int start, int finish, double coef) {
     int finishInBytes = finish * fileHandler->getSampleRate() * 2;
     int fileSizeInBytes = fileHandler->getInStartOffset();
     fileHandler->initialize();
+    MuterFactory muterFactory;
     if (fileHandler->isAreFilesSame()) {
         while (fileSizeInBytes <= fileHandler->getInSize()) {
             if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
                 char* buffer = new char[second];
-                for (int i = 0; i < second; ++i) {
-                    buffer[i] = 0;
-                }
+                callConverter(muterFactory, buffer);
                 fileHandler->writeString(buffer, 0);
                 delete[](buffer);
             }
@@ -57,9 +51,7 @@ void MuterHelper::convert(int start, int finish, double coef) {
     while (fileSizeInBytes <= fileHandler->getInSize()) {
         if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
             char* buffer = fileHandler->getSecondFromIn();
-            for (int i = 0; i < second; ++i) {
-                buffer[i] = 0;
-            }
+            callConverter(muterFactory, buffer);
             fileHandler->writeString(buffer, 0);
             delete(buffer);
         }
@@ -105,13 +97,12 @@ void BoosterHelper::convert(int start, int finish, double coef) {
     int finishInBytes = finish * fileHandler->getSampleRate() * 2;
     int fileSizeInBytes = fileHandler->getInStartOffset();
     fileHandler->initialize();
+    BoosterFactory boosterFactory;
     if (fileHandler->isAreFilesSame()) {
         while (fileSizeInBytes <= fileHandler->getInSize()) {
             if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
                 char* buffer = fileHandler->getSecondFromOut();
-                for (int i = 0; i < second; ++i) {
-                    buffer[i] = static_cast<char>(buffer[i] * 2);
-                }
+                buffer = callConverter(boosterFactory, buffer, nullptr, coef);
                 fileHandler->writeString(buffer, -second);
                 delete(buffer);
             }
@@ -125,9 +116,7 @@ void BoosterHelper::convert(int start, int finish, double coef) {
     while (fileSizeInBytes < fileHandler->getInSize()) {
         if (fileSizeInBytes >= startInBytes && fileSizeInBytes <= finishInBytes) {
             char* buffer = fileHandler->getSecondFromIn();
-            for (int i = 0; i < second; ++i) {
-                buffer[i] = static_cast<char>(buffer[i] * coef);
-            }
+            buffer = callConverter(boosterFactory, buffer, nullptr, coef);
             fileHandler->writeString(buffer, 0);
             delete(buffer);
         }
@@ -139,3 +128,22 @@ void BoosterHelper::convert(int start, int finish, double coef) {
         fileSizeInBytes += second;
     }
 }
+
+char* ConverterHelper::callConverter(const ConverterFactory& factory, char* stream1, char* inStream, double coef) {
+    Converter* converter = factory.createConverter();
+    stream1 = converter->convert(stream1, inStream, coef);
+    return stream1;
+}
+
+char *MuterHelper::callConverter(const ConverterFactory &factory, char *outStream, char *inStream, double coef) {
+    return ConverterHelper::callConverter(factory, outStream, inStream, coef);
+}
+
+char *MixerHelper::callConverter(const ConverterFactory &factory, char *outStream, char *inStream, double coef) {
+    return ConverterHelper::callConverter(factory, outStream, inStream, coef);
+}
+
+char *BoosterHelper::callConverter(const ConverterFactory &factory, char *outStream, char *inStream, double coef) {
+    return ConverterHelper::callConverter(factory, outStream, inStream, coef);
+}
+

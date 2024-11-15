@@ -1,18 +1,13 @@
 #include "SoundProcessor.h"
 
-// TODO
-// TODO PROBABLY CHANGE CONVERTER LOGIC SHOULD RETURN SAMPLE. I THINK WE NEED TO ADD ANOTHER CLASS THAT WILL UNITE FILEHANDLER AND CONVERTER
-// TODO -h IN CONSOLE
-// TODO CHECK FOR ALL EXCEPTIONS AND MAKE STD::ERR
 // TODO GTESTS
-// TODO DYNAMIC HELPER PROBABLY SHOULD PRINT WHEN -h
 
 void SoundProcessor::runProcess() {
     config.open(configFilename);
     ConfigParser configParser = ConfigParser(&config);
     std::string previousFilename = inFilenames[1];
     std::string outName = inFilenames[0];
-    remove(outName.c_str());
+    prepareOutput(outName, previousFilename);
     while(!config.eof()) {
         Cmd* cmd = configParser.getCommand();
         if (cmd->getCmdName() == "MUTE") {
@@ -35,7 +30,36 @@ void SoundProcessor::runProcess() {
 
 void SoundProcessor::convert(ConverterHelperFactory& converterFactory, int start, int finish, double coef, std::string& inFilename,
                              std::string& outFilename) {
-    ConverterHelper* converter = converterFactory.createConverter(inFilename, outFilename);
-    converter->convert(start, finish, coef);
-    delete(converter);
+    ConverterHelper* converterHelper = converterFactory.createConverter(inFilename, outFilename);
+    converterHelper->convert(start, finish, coef);
+    delete(converterHelper);
+}
+
+SoundProcessor::SoundProcessor() {}
+
+void SoundProcessor::printHelp() {
+    std::vector<Converter*> availableConverters = getAvailableConvertersList();
+    std::cout << "* List of available converters: " << '\n';
+    for (const auto& i : availableConverters) {
+        std::cout << i->getName() << '\n';
+        std::cout << '\t' << i->getParameters() << '\n';
+        std::cout << i->getBriefDescription() << "\n\n";
+    }
+}
+
+void SoundProcessor::prepareOutput(std::string outName, std::string firstInput) {
+    remove(outName.c_str());
+    MuterHelperFactory muterFactory;
+    convert(muterFactory, 0, 0, DEFAULT_COEFFICIENT, firstInput, outName);
+}
+
+std::vector<Converter*> SoundProcessor::getAvailableConvertersList() {
+    std::vector<Converter*> availableConverters;
+    MuterFactory muterFactory;
+    availableConverters.push_back(muterFactory.createConverter());
+    MixerFactory mixerFactory;
+    availableConverters.push_back(mixerFactory.createConverter());
+    BoosterFactory boosterFactory;
+    availableConverters.push_back(boosterFactory.createConverter());
+    return availableConverters;
 }

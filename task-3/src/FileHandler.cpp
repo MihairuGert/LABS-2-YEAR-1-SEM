@@ -29,7 +29,6 @@ FileHandler::FileHandler(std::string& inputFilename, std::string& outputFilename
     }
     else {
         out.open(outputFilename, std::ios::binary | std::ios::out);
-        canBeMixed = false;
     }
 
     if (!wasOutOpen) {
@@ -73,10 +72,6 @@ int FileHandler::getSampleRate() const {
 
 bool FileHandler::isAreFilesSame() const {
     return areFilesSame;
-}
-
-bool FileHandler::isCanBeMixed() const {
-    return canBeMixed;
 }
 
 void FileHandler::initialize() {

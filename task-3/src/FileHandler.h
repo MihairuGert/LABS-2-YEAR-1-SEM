@@ -18,7 +18,6 @@ class FileHandler {
 
     int sampleRate;
     bool areFilesSame;
-    bool canBeMixed = true;
     void writeBinaryInFile(int value, int bytes);
 public:
     FileHandler(std::string& inputFilename, std::string& outputFilename);
@@ -35,5 +34,4 @@ public:
     int getOutSize() const;
     int getInSize() const;
     bool isAreFilesSame() const;
-    bool isCanBeMixed() const;
 };

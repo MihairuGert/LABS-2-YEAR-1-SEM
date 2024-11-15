@@ -15,6 +15,7 @@ Cmd* ConfigParser::getCommand() {
         int end;
         istrstream >> begin >> end;
         if (begin < 0 || end < 0) {
+            std::cerr << "Incorrect time interval";
             throw ExceptionMSG("incorrect_time_interval");
         }
         Cmd* cmd = new Cmd("MUTE", {begin, end});
@@ -26,29 +27,34 @@ Cmd* ConfigParser::getCommand() {
         double coef;
         istrstream >> begin >> end >> coef;
         if (begin < 0 || end < 0) {
+            std::cerr << "Incorrect time interval";
             throw ExceptionMSG("incorrect_time_interval");
         }
         if (coef <= 0) {
+            std::cerr << "Incorrect boost coefficient";
             throw ExceptionMSG("incorrect_boost_coef");
         }
         Cmd* cmd = new Cmd("BOOST", {begin, end}, -1, coef);
         return cmd;
     }
     if (commandName == "mix") {
-        int begin;
+        int begin = 0;
         std::string input;
         istrstream >> input >> begin;
         int inputIndex = stoi(input.substr(1));
         if (begin < 0) {
+            std::cerr << "Incorrect time interval";
             throw ExceptionMSG("incorrect_time_interval");
         }
         if (inputIndex < 1) {
+            std::cerr << "Incorrect input file index";
             throw ExceptionMSG("incorrect_input_file_index");
         }
         Cmd* cmd = new Cmd("MIX", {begin}, inputIndex);
         return cmd;
     }
     else {
+        std::cerr << "Command does not exist";
         throw ExceptionMSG("command_does_not_exist");
     }
 }

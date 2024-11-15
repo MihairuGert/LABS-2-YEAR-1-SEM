@@ -1,6 +1,7 @@
 #pragma once
 #include <exception>
 #include <string>
+#include <iostream>
 
 class ExceptionMSG : public std::exception{
     std::string message;
