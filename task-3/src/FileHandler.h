@@ -18,7 +18,6 @@ class FileHandler {
 
     int sampleRate;
     bool areFilesSame;
-    void writeBinaryInFile(int value, int bytes);
 public:
     FileHandler(std::string& inputFilename, std::string& outputFilename);
     ~FileHandler();
@@ -35,3 +34,14 @@ public:
     int getInSize() const;
     bool isAreFilesSame() const;
 };
+
+class FileReader {
+public:
+    void read(std::istream& in, char* buffer, int size);
+};
+
+class FileWriter {
+public:
+    void write(std::ostream& out, char* buffer, int size);
+};
+

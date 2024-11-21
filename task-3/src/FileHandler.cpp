@@ -51,19 +51,22 @@ FileHandler::~FileHandler() {
 
 char *FileHandler::getSecondFromIn() {
     char* buffer = new char[second];
-    in.read(buffer, second);
+    FileReader fileReader;
+    fileReader.read(in, buffer, second);
     return buffer;
 }
 
 char *FileHandler::getSecondFromOut() {
     char* buffer = new char[second];
-    out.read(buffer, second);
+    FileReader fileReader;
+    fileReader.read(out, buffer, second);
     return buffer;
 }
 
 void FileHandler::writeString(char *buffer, int offset) {
     out.seekp(offset, std::ios::cur);
-    out.write(buffer, second);
+    FileWriter fileWriter;
+    fileWriter.write(out, buffer, second);
 }
 
 int FileHandler::getSampleRate() const {
@@ -100,10 +103,14 @@ void FileHandler::moveWriterPointer(int offset) {
     out.seekp(offset, std::ios::cur);
 }
 
-void FileHandler::writeBinaryInFile(int value, int bytes) {
-    out.write(reinterpret_cast<const char *>(&value), bytes);
-}
-
 void FileHandler::moveReaderPointer(int offset) {
     in.seekg(offset, std::ios::cur);
+}
+
+void FileReader::read(std::istream &in, char *buffer, int size) {
+    in.read(buffer, size);
+}
+
+void FileWriter::write(std::ostream &out, char *buffer, int size) {
+    out.write(buffer, size);
 }
