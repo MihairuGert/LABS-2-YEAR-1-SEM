@@ -1,8 +1,31 @@
 #pragma once
 
 #include "fstream"
+#include "iostream"
 #include "sstream"
 #include "tuple"
+#include "vector"
+#include "algorithm"
+
+template<int Index, typename First, typename... Args>
+struct TupleGetter{
+    static std::tuple<First, Args...> getTuple(std::vector<std::string>& line) {
+        First temp;
+        std::stringstream ss(line[Index]);
+        ss >> temp;
+        return std::tuple_cat(std::make_tuple(temp), TupleGetter<Index - 1, Args...>::getTuple(line));
+    }
+};
+
+template<typename First, typename... Args>
+struct TupleGetter<0, First, Args...>{
+    static std::tuple<First, Args...> getTuple(std::vector<std::string>& line) {
+        First temp;
+        std::stringstream ss(line[0]);
+        ss >> temp;
+        return std::make_tuple(temp);
+    }
+};
 
 template<typename... Args>
 class CSVParser;
@@ -11,7 +34,7 @@ template<typename... Args>
 class CSVParserIterator : public std::iterator<std::input_iterator_tag, std::tuple<Args...>> {
     friend class CSVParser<Args...>;
 private:
-    explicit CSVParserIterator(std::tuple<Args...>* p);
+    explicit CSVParserIterator(std::tuple<Args...>* newData);
 public:
     CSVParserIterator(const CSVParserIterator &it);
 
@@ -44,7 +67,8 @@ bool CSVParserIterator<Args...>::operator!=(const CSVParserIterator &other) cons
 
 template<typename... Args>
 CSVParserIterator<Args...> &CSVParserIterator<Args...>::operator++() {
-    // Add here line;
+    (*data) = CSVParser<Args...>::getTuple();
+    return *this;
 }
 
 template<typename... Args>
@@ -53,11 +77,9 @@ class CSVParser {
     char columnDelim = ';';
     char rowDelim = '\n';
     // TODO EKRANIROVANIE
-    //
-    //
+    // TODO OFFSET
     size_t offset;
     std::string getLine();
-    void setTupleElement(int count, std::tuple<Args...>, std::stringstream buffer);
     std::tuple<Args...> getTuple();
 public:
     typedef CSVParserIterator<Args...> iterator;
@@ -70,11 +92,13 @@ std::tuple<Args...> CSVParser<Args...>::getTuple() {
     std::stringstream ss(row);
     std::string buffer;
     std::tuple<Args...> tuple;
-    // TODO SOMEHOW PARSE THE LINES
-//    while(std::getline(ss, buffer, columnDelim)) {
-//         tuple = std::tuple_cat(tuple, std::make_tuple<Args>(buffer));
-//    }
-    return std::tuple<Args...>();
+    std::vector<std::string> words;
+    while(std::getline(ss, buffer, columnDelim)) {
+        words.push_back(buffer);
+    }
+    std::reverse(words.begin(), words.end());
+    tuple = TupleGetter<sizeof...(Args) - 1, Args...>::getTuple(words);
+    return tuple;
 }
 
 template<typename... Args>
@@ -83,5 +107,7 @@ std::string CSVParser<Args...>::getLine() {
     std::getline(in, buffer, rowDelim);
     return buffer;
 }
+
+
 
 

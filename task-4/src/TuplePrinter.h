@@ -22,5 +22,7 @@ public:
 
 template<typename Ch, typename Tr, typename... Args>
 void operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t) {
+    os << "( ";
     TuplePrinter<sizeof...(Args) - 1, Ch, Tr, Args...>::printTuple(os, t);
+    os << ")";
 }
