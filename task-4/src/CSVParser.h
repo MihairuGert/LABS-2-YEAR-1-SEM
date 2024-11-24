@@ -33,13 +33,14 @@ class CSVParser {
     char columnDelim = ';';
     char rowDelim = '\n';
     char escapeChar = '"';
+    bool isEof = false;
     std::string getLine();
-    std::string getLine(std::stringstream ss);
-    std::vector<std::string> getWords(std::stringstream ss);
+    std::string getLine(std::stringstream& ss, char delim);
+    std::vector<std::string> getWords(std::stringstream& ss);
     std::tuple<Args...> getTuple();
 public:
     explicit CSVParser(std::istream& in, size_t offset = 0, char columnDelim = ';', char rowDelim = '\n', char escapeChar = '"')
-    : in(in), columnDelim(columnDelim), rowDelim(rowDelim), escapeChar(escapeChar) {
+            : in(in), columnDelim(columnDelim), rowDelim(rowDelim), escapeChar(escapeChar) {
         for (int i = 0; i < offset; ++i) {
             getLine();
         }
@@ -56,10 +57,11 @@ public:
             }
         }
         Iterator& operator++() {
+            if (parser->isEof) isEnd = true;
             if (isEnd) return *this;
             current = parser->getTuple();
             if (parser->in.eof()) {
-                isEnd = true;
+                parser->isEof = true;
             }
             return *this;
         }
@@ -92,12 +94,30 @@ std::tuple<Args...> CSVParser<Args...>::getTuple() {
     std::string buffer;
     std::tuple<Args...> tuple;
     std::vector<std::string> words;
-    while(std::getline(ss, buffer, columnDelim)) {
-        words.push_back(buffer);
-    }
+    words = getWords(ss);
     std::reverse(words.begin(), words.end());
     tuple = TupleGetter<sizeof...(Args) - 1, Args...>::getTuple(words);
     return tuple;
+}
+
+template<typename... Args>
+std::string CSVParser<Args...>::getLine(std::stringstream& ss, char delim) {
+    std::string buffer;
+    char ch;
+    bool isEscape = false;
+    while (ss.read(&ch, sizeof(char))) {
+        if (ch == delim && !isEscape) {
+            break;
+        }
+        if (ch == escapeChar) {
+            isEscape = true;
+            continue;
+        } else {
+            isEscape = false;
+        }
+        buffer.push_back(ch);
+    }
+    return buffer;
 }
 
 template<typename... Args>
@@ -121,8 +141,16 @@ std::string CSVParser<Args...>::getLine() {
 }
 
 template<typename... Args>
-std::vector<std::string> CSVParser<Args...>::getWords(std::stringstream ss) {
-    return std::vector<std::string>();
+std::vector<std::string> CSVParser<Args...>::getWords(std::stringstream& ss) {
+    std::string buffer;
+    std::vector<std::string> result;
+    while(true) {
+        buffer = getLine(ss, columnDelim);
+        if (buffer.empty()) {
+            break;
+        }
+        result.emplace_back(buffer);
+
+    }
+    return result;
 }
-
-
