@@ -6,6 +6,7 @@
 #include "tuple"
 #include "vector"
 #include "algorithm"
+#include "stdexcept"
 
 template<int Index, typename First, typename... Args>
 struct TupleGetter{
@@ -50,6 +51,7 @@ class CSVParser {
     char rowDelim = '\n';
     char escapeChar = '"';
     bool isEof = false;
+    size_t rowCount;
     std::string getLine();
     std::string getLine(std::stringstream& ss, char delim);
     std::vector<std::string> getWords(std::stringstream& ss);
@@ -57,6 +59,7 @@ class CSVParser {
 public:
     explicit CSVParser(std::istream& in, size_t offset = 0, char columnDelim = ';', char rowDelim = '\n', char escapeChar = '"')
             : in(in), columnDelim(columnDelim), rowDelim(rowDelim), escapeChar(escapeChar) {
+        rowCount = 0;
         for (int i = 0; i < offset; ++i) {
             getLine();
         }
@@ -102,9 +105,10 @@ public:
 
 template<typename... Args>
 std::tuple<Args...> CSVParser<Args...>::getTuple() {
+    rowCount++;
     std::string row = getLine();
     if (row.empty()) {
-        return std::tuple<Args...>();
+        throw std::length_error("Empty document.");
     }
     std::stringstream ss(row);
     std::string buffer;
@@ -112,6 +116,9 @@ std::tuple<Args...> CSVParser<Args...>::getTuple() {
     std::vector<std::string> words;
     words = getWords(ss);
     std::reverse(words.begin(), words.end());
+    if (words.size() != sizeof...(Args)) {
+        throw std::length_error("Too many or too few columns in row #" + std::to_string(rowCount));
+    }
     tuple = TupleGetter<sizeof...(Args) - 1, Args...>::getTuple(words);
     return tuple;
 }
