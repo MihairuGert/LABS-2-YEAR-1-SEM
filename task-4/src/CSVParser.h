@@ -17,12 +17,28 @@ struct TupleGetter{
     }
 };
 
+template<int Index, typename... Args>
+struct TupleGetter<Index, std::string, Args...> {
+    static std::tuple<std::string, Args...> getTuple(std::vector<std::string>& line) {
+        std::string temp = line[Index];
+        return std::tuple_cat(std::make_tuple(temp), TupleGetter<Index - 1, Args...>::getTuple(line));
+    }
+};
+
 template<typename First, typename... Args>
 struct TupleGetter<0, First, Args...>{
     static std::tuple<First, Args...> getTuple(std::vector<std::string>& line) {
         First temp;
         std::stringstream ss(line[0]);
         ss >> temp;
+        return std::make_tuple(temp);
+    }
+};
+
+template<typename... Args>
+struct TupleGetter<0, std::string, Args...> {
+    static std::tuple<std::string, Args...> getTuple(std::vector<std::string>& line) {
+        std::string temp = line[0];
         return std::make_tuple(temp);
     }
 };
@@ -109,6 +125,9 @@ std::string CSVParser<Args...>::getLine(std::stringstream& ss, char delim) {
         if (ch == delim && !isEscape) {
             break;
         }
+        if (ch != delim && isEscape) {
+            buffer.push_back(escapeChar);
+        }
         if (ch == escapeChar) {
             isEscape = true;
             continue;
@@ -128,6 +147,9 @@ std::string CSVParser<Args...>::getLine() {
     while (in.read(&ch, sizeof(char))) {
         if (ch == rowDelim && !isEscape) {
             break;
+        }
+        if (ch != rowDelim && isEscape) {
+            buffer.push_back(escapeChar);
         }
         if (ch == escapeChar) {
             isEscape = true;
