@@ -28,67 +28,63 @@ struct TupleGetter<0, First, Args...>{
 };
 
 template<typename... Args>
-class CSVParser;
-
-template<typename... Args>
-class CSVParserIterator : public std::iterator<std::input_iterator_tag, std::tuple<Args...>> {
-    friend class CSVParser<Args...>;
-private:
-    explicit CSVParserIterator(std::tuple<Args...>* newData);
-public:
-    CSVParserIterator(const CSVParserIterator &it);
-
-    bool operator!=(CSVParserIterator const& other) const;
-    typename CSVParserIterator::reference operator*() const;
-    CSVParserIterator& operator++();
-private:
-    std::tuple<Args...>* data;
-};
-
-template<typename... Args>
-typename CSVParserIterator<Args...>::reference CSVParserIterator<Args...>::operator*() const {
-    return *data;
-}
-
-template<typename... Args>
-CSVParserIterator<Args...>::CSVParserIterator(std::tuple<Args...> *newData) {
-    data = newData;
-}
-
-template<typename... Args>
-CSVParserIterator<Args...>::CSVParserIterator(const CSVParserIterator &it) {
-    data = it.data;
-}
-
-template<typename... Args>
-bool CSVParserIterator<Args...>::operator!=(const CSVParserIterator &other) const {
-    return data != other.data;
-}
-
-template<typename... Args>
-CSVParserIterator<Args...> &CSVParserIterator<Args...>::operator++() {
-    (*data) = CSVParser<Args...>::getTuple();
-    return *this;
-}
-
-template<typename... Args>
 class CSVParser {
     std::istream& in;
     char columnDelim = ';';
     char rowDelim = '\n';
-    // TODO EKRANIROVANIE
-    // TODO OFFSET
-    size_t offset;
+    // TODO WINDOW
     std::string getLine();
     std::tuple<Args...> getTuple();
 public:
-    typedef CSVParserIterator<Args...> iterator;
-    CSVParser(std::istream& in, size_t offset = 0) : in(in), offset(offset) {};
+    // Input iterator.
+    class Iterator : public std::iterator<std::input_iterator_tag, std::tuple<Args...>> {
+        CSVParser* parser;
+        std::tuple<Args...> current;
+        bool isEnd;
+    public:
+        explicit Iterator(CSVParser* parser, bool isEnd = false) : parser(parser), isEnd(isEnd) {
+            if (!isEnd) {
+                ++(*this);
+            }
+        }
+        Iterator& operator++() {
+            if (isEnd) return *this;
+            current = parser->getTuple();
+            if (parser->in.eof()) {
+                isEnd = true;
+            }
+            return *this;
+        }
+        bool operator!=(const Iterator& it) const {
+            return isEnd != it.isEnd;
+        }
+        std::tuple<Args...>& operator*() {
+            return current;
+        }
+        std::tuple<Args...>* operator->() {
+            return &current;
+        }
+    };
+    // CSV Parser.
+    Iterator begin() {
+        return Iterator(this);
+    }
+    Iterator end() {
+        return Iterator(this, true);
+    }
+    explicit CSVParser(std::istream& in, size_t offset = 0) : in(in) {
+        for (int i = 0; i < offset; ++i) {
+            getLine();
+        }
+    };
 };
 
 template<typename... Args>
 std::tuple<Args...> CSVParser<Args...>::getTuple() {
     std::string row = getLine();
+    if (row.empty()) {
+        return std::tuple<Args...>();
+    }
     std::stringstream ss(row);
     std::string buffer;
     std::tuple<Args...> tuple;
@@ -107,7 +103,3 @@ std::string CSVParser<Args...>::getLine() {
     std::getline(in, buffer, rowDelim);
     return buffer;
 }
-
-
-
-
